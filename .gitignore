@@ -9,5 +9,9 @@ CTestTestfile.cmake
 cmake-build-debug/*
 *~
 .idea/*
+*.cbp
 
 html/*
+
+MQTT.CON
+MQTT.SUB
