@@ -1,0 +1,6 @@
+[submodule "src/lib/googletest"]
+	path = src/lib/googletest
+	url = https://github.com/google/googletest.git
+[submodule "src/implementation/linux-mqtt-sn-gateway"]
+	path = src/implementation/linux-mqtt-sn-gateway
+	url = git@github.com:S3ler/linux-mqtt-sn-gateway.git
