@@ -31,11 +31,11 @@ class LinuxUdpGateway_Publish_Check : public ::testing::Test {
 
 protected:
     virtual void TearDown() {
-        stop_broker();
+        //stop_broker();
     }
 
     virtual void SetUp() {
-        start_broker();
+        //start_broker();
     }
 
 public:
@@ -55,10 +55,17 @@ TEST_F(LinuxUdpGateway_Publish_Check, QoS_M1_Publish) {
     LinuxGateway gateway;
 
     PahoMqttTestMessageHandler reveiving_client;
+    reveiving_client.begin();
 
-    // uint8_t ip[] = {127, 0, 0, 1};
-    // uint16_t port = 1884;
-    // reveiving_client.setServer((uint8_t *) &ip, port);
+
+    uint8_t ip[] = {127, 0, 0, 1};
+    uint16_t port = 1884;
+    reveiving_client.setServer((uint8_t *) &ip, port);
+    reveiving_client.connect("Test Client");
+
+    reveiving_client.start_loop();
+
+    reveiving_client.stop_loop();
     // TODO how let google test run something within a thread (gateway) and let is stop later, save it in member variable
 
     // connect gw

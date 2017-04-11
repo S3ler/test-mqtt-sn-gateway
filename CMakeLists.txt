@@ -18,6 +18,7 @@ include_directories(src/lib/paho)
 
 include_directories(src/implementation/linux-mqtt-sn-gateway/src/arduino-linux-abstraction/src)
 include_directories(src/implementation/linux-mqtt-sn-gateway/src/core-mqtt-sn-gateway/src)
+include_directories(src/implementation/linux-mqtt-sn-gateway/src/Implementation)
 include_directories(src/implementation/linux-mqtt-sn-gateway/src/Implementation/paho/pahomqttembeddedc/MQTTClient/src/linux)
 include_directories(src/implementation/linux-mqtt-sn-gateway/src/Implementation/paho/pahomqttembeddedc/MQTTClient/src/)
 include_directories(src/implementation/linux-mqtt-sn-gateway/src/Implementation/paho/pahomqttembeddedc/MQTTPacket/src)
@@ -28,4 +29,4 @@ add_subdirectory(src/lib/googletest)
 add_subdirectory(src/lib/paho)
 add_subdirectory(src/implementation/${TO_TEST_IMPLEMENTATION_FOLDER})
 
-target_link_libraries(runAll_Tests lib-${TO_TEST_IMPLEMENTATION_FOLDER}  gtest gtest_main gmock gmock_main)
+target_link_libraries(runAll_Tests lib-${TO_TEST_IMPLEMENTATION_FOLDER} PahoLinuxTestMqttMessageHandler  gtest gtest_main gmock gmock_main)

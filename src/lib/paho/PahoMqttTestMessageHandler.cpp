@@ -1,11 +1,12 @@
+#include <thread>
 #include "PahoMqttTestMessageHandler.h"
 
 #define MQTT_LOG 1
 
-void messageArrived(MQTT::MessageData& md);
+void messageArrived1(MQTT::MessageData& md);
 
 
-void messageArrived(MQTT::MessageData& md){
+void messageArrived1(MQTT::MessageData& md){
     MQTT::Message &message = md.message;
     char topic_name_buffer[1024];
     memset(topic_name_buffer,0,1024);
@@ -197,7 +198,7 @@ bool PahoMqttTestMessageHandler::subscribe(const char *topic, uint8_t qos) {
         return false;
     }
 
-    int rc = client->subscribe(topic, _qos, messageArrived);
+    int rc = client->subscribe(topic, _qos, messageArrived1);
     return rc == 0;
 }
 
@@ -221,11 +222,23 @@ bool PahoMqttTestMessageHandler::receive_publish(char *topic, uint8_t *payload, 
     return false;
 }
 
-bool PahoMqttTestMessageHandler::loop() {
-    if (client->isConnected()) {
-        client->yield(300);
-    }else{
-        return false;
-    }
-    return true;
+bool PahoMqttTestMessageHandler::start_loop() {
+    this->thread = std::thread(&PahoMqttTestMessageHandler::loop, this);
 }
+
+void PahoMqttTestMessageHandler::loop() {
+    while (!error && !stopped) {
+        if (client->isConnected()) {
+            client->yield(300);
+        }else{
+            error = true;
+        }
+    }
+}
+
+bool PahoMqttTestMessageHandler::stop_loop() {
+    stopped = true;
+    thread.join();
+    return stopped;
+}
+
