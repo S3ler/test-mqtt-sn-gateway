@@ -7,7 +7,7 @@ set(TO_TEST_IMPLEMENTATION_FOLDER linux-mqtt-sn-gateway)
 
 set(TEST_FILES
         src/publish/Publish_Check.cpp
-	)
+        )
 
 add_executable(runAll_Tests ${TEST_FILES})
 

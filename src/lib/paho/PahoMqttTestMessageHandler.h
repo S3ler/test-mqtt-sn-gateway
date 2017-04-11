@@ -5,6 +5,11 @@
 #include <linux.cpp>
 #include <netinet/in.h>
 #include <thread>
+#include <ReceiverInterface.h>
+
+class ReceiverInterface;
+
+
 
 class PahoMqttTestMessageHandler {
 private:
@@ -48,11 +53,15 @@ public:
     MQTT::Client<IPStack, Countdown, 512, 5> *client;
     const char *hostname = nullptr;
     uint16_t port = 0;
+
+    void setReceiver(ReceiverInterface *pMock);
+
 private:
     int64_t ip_address = -1;
     bool error = false;
     bool stopped= false;
     std::thread thread;
+    ReceiverInterface *receiver = nullptr;
 };
 
 

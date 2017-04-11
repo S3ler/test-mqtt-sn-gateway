@@ -2,21 +2,26 @@
 
 #define MQTT_LOG 1
 
-void messageArrived1(MQTT::MessageData& md);
+void messageArrived1(MQTT::MessageData &md);
 
+PahoMqttTestMessageHandler *global__receiver = nullptr;
 
-void messageArrived1(MQTT::MessageData& md){
+void messageArrived1(MQTT::MessageData &md) {
     MQTT::Message &message = md.message;
     char topic_name_buffer[1024];
-    memset(topic_name_buffer,0,1024);
+    memset(topic_name_buffer, 0, 1024);
     if (md.topicName.lenstring.len < 1024) {
         memcpy(topic_name_buffer, md.topicName.lenstring.data, md.topicName.lenstring.len);
-        // __mqttMessageHandler->receive_publish(topic_name_buffer, (uint8_t *) message.payload, (uint32_t) message.payloadlen);
+        global__receiver->receive_publish(topic_name_buffer, (uint8_t *) message.payload,
+                                          (uint32_t) message.payloadlen);
     }
 }
 
 
 bool PahoMqttTestMessageHandler::begin() {
+    if (this->receiver == nullptr) {
+        return false;
+    }
     ipstack = IPStack();
     client = new MQTT::Client<IPStack, Countdown>(ipstack);
     return true;
@@ -44,9 +49,9 @@ bool PahoMqttTestMessageHandler::connect(const char *id) {
     int rc;
     if (hostname != nullptr) {
         rc = ipstack.connect(hostname, port);
-    }else if(ip_address != -1){
+    } else if (ip_address != -1) {
         rc = ipstack.connect((uint32_t) ip_address, port);
-    }else{
+    } else {
         return false;
     }
     if (rc != 0) {
@@ -64,9 +69,9 @@ bool PahoMqttTestMessageHandler::connect(const char *id, const char *user, const
     int rc;
     if (hostname != nullptr) {
         rc = ipstack.connect(hostname, port);
-    }else if(ip_address != -1){
+    } else if (ip_address != -1) {
         rc = ipstack.connect((uint32_t) ip_address, port);
-    }else{
+    } else {
         return false;
     }
     if (rc != 0) {
@@ -84,13 +89,13 @@ bool PahoMqttTestMessageHandler::connect(const char *id, const char *user, const
 }
 
 bool PahoMqttTestMessageHandler::connect(const char *id, const char *willTopic, uint8_t willQos, bool willRetain,
-                                     const uint8_t *willMessage, const uint16_t willMessageLength) {
+                                         const uint8_t *willMessage, const uint16_t willMessageLength) {
     int rc;
     if (hostname != nullptr) {
         rc = ipstack.connect(hostname, port);
-    }else if(ip_address != -1){
+    } else if (ip_address != -1) {
         rc = ipstack.connect((uint32_t) ip_address, port);
-    }else{
+    } else {
         return false;
     }
     if (rc != 0) {
@@ -109,7 +114,7 @@ bool PahoMqttTestMessageHandler::connect(const char *id, const char *willTopic, 
         data.will.qos = MQTT::QOS1;
     } else if (willQos == 2) {
         data.will.qos = MQTT::QOS2;
-    }else{
+    } else {
         return false;
     }
     //data.will.retained = (unsigned char) willRetain; // TODO check
@@ -119,14 +124,14 @@ bool PahoMqttTestMessageHandler::connect(const char *id, const char *willTopic, 
 }
 
 bool PahoMqttTestMessageHandler::connect(const char *id, const char *user, const char *pass, const char *willTopic,
-                                     uint8_t willQos, bool willRetain, const uint8_t *willMessage,
-                                     const uint16_t willMessageLength) {
+                                         uint8_t willQos, bool willRetain, const uint8_t *willMessage,
+                                         const uint16_t willMessageLength) {
     int rc;
     if (hostname != nullptr) {
         rc = ipstack.connect(hostname, port);
-    }else if(ip_address != -1){
+    } else if (ip_address != -1) {
         rc = ipstack.connect((uint32_t) ip_address, port);
-    }else{
+    } else {
         return false;
     }
     if (rc != 0) {
@@ -149,7 +154,7 @@ bool PahoMqttTestMessageHandler::connect(const char *id, const char *user, const
         data.will.qos = MQTT::QOS1;
     } else if (willQos == 2) {
         data.will.qos = MQTT::QOS2;
-    }else{
+    } else {
         return false;
     }
     data.will.retained = (unsigned char) willRetain; // TODO check
@@ -164,7 +169,7 @@ void PahoMqttTestMessageHandler::disconnect() {
 }
 
 bool PahoMqttTestMessageHandler::publish(const char *topic, const uint8_t *payload, uint16_t plength, uint8_t qos,
-                                     bool retained) {
+                                         bool retained) {
     MQTT::Message message;
     if (qos == 0) {
         message.qos = MQTT::QOS0;
@@ -172,10 +177,10 @@ bool PahoMqttTestMessageHandler::publish(const char *topic, const uint8_t *paylo
         message.qos = MQTT::QOS1;
     } else if (qos == 2) {
         message.qos = MQTT::QOS2;
-    }else{
+    } else {
         return false;
     }
-    message.payload = (void*)payload;
+    message.payload = (void *) payload;
     message.payloadlen = plength;
 
     message.retained = retained;
@@ -193,14 +198,13 @@ bool PahoMqttTestMessageHandler::subscribe(const char *topic, uint8_t qos) {
         _qos = MQTT::QOS1;
     } else if (qos == 2) {
         _qos = MQTT::QOS2;
-    }else{
+    } else {
         return false;
     }
 
     int rc = client->subscribe(topic, _qos, messageArrived1);
     return rc == 0;
 }
-
 
 
 bool PahoMqttTestMessageHandler::unsubscribe(const char *topic) {
@@ -218,6 +222,12 @@ bool PahoMqttTestMessageHandler::receive_publish(char *topic, uint8_t *payload, 
     // CORE_RESULT publish_result = core->publish(topic, payload, length, false);
     // TODO implement me
     // return publish_result == SUCCESS;}
+    if (*(payload + length) != 0) {
+        throw new std::invalid_argument("Received Mqtt payload which is not a string");
+    }
+    MqttPublish publish((const char *) topic, (const char *) payload);
+    this->receiver->receive(publish);
+    //this->receiver->r
     return false;
 }
 
@@ -229,7 +239,7 @@ void PahoMqttTestMessageHandler::loop() {
     while (!error && !stopped) {
         if (client->isConnected()) {
             client->yield(300);
-        }else{
+        } else {
             error = true;
         }
     }
@@ -239,5 +249,10 @@ bool PahoMqttTestMessageHandler::stop_loop() {
     stopped = true;
     thread.join();
     return stopped;
+}
+
+void PahoMqttTestMessageHandler::setReceiver(ReceiverInterface *pMock) {
+    this->receiver = pMock;
+    global__receiver = this;
 }
 
