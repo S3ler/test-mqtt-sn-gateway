@@ -1,4 +1,3 @@
-#include <thread>
 #include "PahoMqttTestMessageHandler.h"
 
 #define MQTT_LOG 1
