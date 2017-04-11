@@ -4,6 +4,8 @@
 #include <gmock/gmock-actions.h>
 #include <gmock/gmock-more-actions.h>
 #include <gmock/gmock-generated-matchers.h>
+#include <PahoMqttTestMessageHandler.h>
+#include "../implementation/linux-mqtt-sn-gateway/src/Implementation/LinuxGateway.h"
 
 using ::testing::_;
 using ::testing::AtLeast;
@@ -49,7 +51,26 @@ public:
 
 
 
-TEST_F(LinuxUdpGateway_Publish_Check, Two_CLients_Connect_Register_and_Publish_Disconnect_ComplexScenario) {
+TEST_F(LinuxUdpGateway_Publish_Check, QoS_M1_Publish) {
+    LinuxGateway gateway;
+
+    PahoMqttTestMessageHandler reveiving_client;
+
+    // uint8_t ip[] = {127, 0, 0, 1};
+    // uint16_t port = 1884;
+    // reveiving_client.setServer((uint8_t *) &ip, port);
+    // TODO how let google test run something within a thread (gateway) and let is stop later, save it in member variable
+
+    // connect gw
+    // connect test client
+    // set test client expected (maybe over a mock object?) then we can use the full power of google test
+    // create a to send message
+
+    // set mock object to expect the topic , qos and message
+
+    // send message with qos -1
+
+    // evaluate result
 
 ASSERT_TRUE(false);
 
