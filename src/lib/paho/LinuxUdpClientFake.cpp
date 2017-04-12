@@ -1,5 +1,6 @@
 #include <iostream>
 #include <zconf.h>
+#include <thread>
 #include "LinuxUdpClientFake.h"
 
 void
@@ -359,7 +360,8 @@ LinuxUdpClientFake::send_subscribe(device_address *target_address, char *topic_n
     }
 }
 
-bool LinuxUdpClientFake::receive_suback(device_address *target_address, uint16_t topic_id, uint16_t msg_id, uint8_t* granted_qos,
+bool LinuxUdpClientFake::receive_suback(device_address *target_address, uint16_t topic_id, uint16_t msg_id,
+                                        uint8_t *granted_qos,
                                         return_code_t return_code) {
     if (s == -1) {
         connect(target_address);
@@ -394,8 +396,10 @@ bool LinuxUdpClientFake::receive_suback(device_address *target_address, uint16_t
     return result;
 }
 
-bool LinuxUdpClientFake::receive_suback(device_address *target_address, uint16_t *new_topic_id, uint16_t msg_id,uint8_t* granted_qos,
+bool LinuxUdpClientFake::receive_suback(device_address *target_address, uint16_t *new_topic_id, uint16_t msg_id,
+                                        uint8_t *granted_qos,
                                         return_code_t return_code) {
+
     if (s == -1) {
         connect(target_address);
     }
@@ -461,11 +465,128 @@ bool LinuxUdpClientFake::receive_any_publish(device_address *target_address, uin
                 result = true;
             }
         }
-    }else {
+    } else {
         std::cout << "recvfrom()" << std::endl;
         exit(1);
     }
     return result;
+}
+
+void LinuxUdpClientFake::setMqttSnReceiver(MqttSnReceiverInterface *receiverInterface) {
+    this->receiver = receiverInterface;
+}
+
+void LinuxUdpClientFake::start_loop() {
+    this->thread = std::thread(&LinuxUdpClientFake::loop, this);
+}
+
+void LinuxUdpClientFake::stop_loop() {
+    stopped = true;
+    this->thread.join();
+}
+
+void LinuxUdpClientFake::loop() {
+    while (!stopped) {
+        int recv_len;
+        if ((recv_len = recvfrom(s, buf, BUFLEN, 0, (struct sockaddr *) &si_other, &slen)) != -1) {
+            device_address client_address = getDevice_address(&si_other);
+            this->receive((uint8_t *) buf, (uint16_t) recv_len);
+        }
+    }
+}
+
+void LinuxUdpClientFake::receive(uint8_t *data, uint16_t length) {
+    if (receiver == nullptr) {
+        throw new std::invalid_argument("mqtt sn receiver not initialized");
+    }
+    message_header *header = (message_header *) data;
+    switch (header->type) {
+        /*
+        case MQTTSN_ADVERTISE:
+            break;
+        case MQTTSN_SEARCHGW:
+            break;
+        */
+        case MQTTSN_CONNECT:
+            this->receiver->receive_connect((msg_connect *) data);
+            break;
+        case MQTTSN_CONNACK:
+            this->receiver->receive_connack((msg_connack *) header);
+            break;
+        case MQTTSN_WILLTOPICREQ:
+            this->receiver->receive_willtopicreq(header);
+            break;
+        case MQTTSN_WILLTOPIC:
+            this->receiver->receive_willtopic((msg_willtopic *) data);
+            break;
+        case MQTTSN_WILLMSGREQ:
+            this->receiver->receive_willmsgreq(header);
+            break;
+        case MQTTSN_WILLMSG:
+            this->receiver->receiver_willmsg((msg_willmsg *) data);
+            break;
+        case MQTTSN_REGISTER:
+            this->receiver->receiver_register((msg_register *) data);
+            break;
+        case MQTTSN_REGACK:
+            this->receiver->receive_regack((msg_regack *) data);
+            break;
+        case MQTTSN_PUBLISH:
+            this->receiver->receive_publish((msg_publish *) data);
+            break;
+        case MQTTSN_PUBACK:
+            this->receiver->receive_puback((msg_puback *) data);
+            break;
+        case MQTTSN_PUBCOMP:
+            this->receiver->receive_pubcomp((msg_pubcomp *) data);
+            break;
+        case MQTTSN_PUBREC:
+            this->receiver->receive_pubrec((msg_pubrec *) data);
+            break;
+        case MQTTSN_PUBREL:
+            this->receiver->receive_pubrel((msg_pubrel *) data);
+            break;
+        case MQTTSN_SUBSCRIBE:
+            this->receiver->receive_subscribe((msg_subscribe *) data);
+            break;
+        case MQTTSN_SUBACK:
+            this->receiver->receive_suback((msg_suback *) data);
+            break;
+        case MQTTSN_UNSUBSCRIBE:
+            this->receiver->receive_unsubscribe((msg_unsubscribe *) data);
+            break;
+        case MQTTSN_UNSUBACK:
+            this->receiver->receive_unsuback((msg_unsuback *) data);
+            break;
+        case MQTTSN_PINGREQ:
+            this->receiver->receive_pingreq(header);
+            break;
+        case MQTTSN_PINGRESP:
+            this->receiver->receive_pingresp(header);
+            break;
+        case MQTTSN_DISCONNECT:
+            this->receiver->receive_disconnect(header);
+            break;
+        case MQTTSN_WILLTOPICUPD:
+            //this->receiver->receive_willtopicudp((msg_willtopicudp *) data);
+            // TODO
+            throw new std::invalid_argument("not implemented yet");
+            break;
+        case MQTTSN_WILLTOPICRESP:
+            this->receiver->receive_willtopicresp((msg_willtopicresp *) data);
+            break;
+        case MQTTSN_WILLMSGUPD:
+            //this->receiver->receive_willmsgudp((msg_willmsgupd*) data);
+            // TODO
+            throw new std::invalid_argument("not implemented yet");
+            break;
+        case MQTTSN_WILLMSGRESP:
+            this->receiver->receive_willmsgresp((msg_willmsgresp *) data);
+            break;
+        default:
+            this->receiver->receive_any(data);
+            break;
+    }
 }
 
 

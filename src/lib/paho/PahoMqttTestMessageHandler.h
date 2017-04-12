@@ -5,9 +5,9 @@
 #include <linux.cpp>
 #include <netinet/in.h>
 #include <thread>
-#include <ReceiverInterface.h>
+#include <MqttReceiverInterface.h>
 
-class ReceiverInterface;
+class MqttReceiverInterface;
 
 
 
@@ -54,14 +54,14 @@ public:
     const char *hostname = nullptr;
     uint16_t port = 0;
 
-    void setReceiver(ReceiverInterface *pMock);
+    void setReceiver(MqttReceiverInterface *pMock);
 
 private:
     int64_t ip_address = -1;
     bool error = false;
     bool stopped= false;
     std::thread thread;
-    ReceiverInterface *receiver = nullptr;
+    MqttReceiverInterface *receiver = nullptr;
 };
 
 

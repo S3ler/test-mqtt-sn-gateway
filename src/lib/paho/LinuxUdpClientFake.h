@@ -4,9 +4,10 @@
 
 #include <global_defines.h>
 #include <mqttsn_messages.h>
-#include<stdio.h>	//printf
+#include<stdio.h>    //printf
 #include<string.h> //memset
 #include<arpa/inet.h>
+#include "MqttSnReceiverInterface.h"
 // #include "mqttsn_messages.h"
 
 #define BUFLEN 255
@@ -17,7 +18,7 @@ public:
     //const int BUFLEN = 255;
     struct sockaddr_in si_other, sin;
     uint16_t fromport = 60000;
-    int timout_seconds = 10;
+    int timout_seconds = 2;
     int timout_micro_s = 0;
     int s = -1, i;
     socklen_t slen = sizeof(si_other);
@@ -26,12 +27,19 @@ public:
 
     device_address address;
 
+    bool stopped = false;
+
 private:
     void connect(device_address *address);
+
 
     void disconnect();
 
 public:
+
+    void setMqttSnReceiver(MqttSnReceiverInterface *receiverInterface);
+
+    void receive(uint8_t *data, uint16_t length);
 
     void send_connect(device_address *target_address, const char *client_id, uint16_t duration, bool clean_session,
                       bool will, bool close_connection = true);
@@ -68,7 +76,8 @@ public:
     /**
      * Receive wenn short_topic == true
      */
-    bool receive_suback(device_address *target_address, uint16_t topic_id, uint16_t msg_id,uint8_t* granted_qos, return_code_t return_code);
+    bool receive_suback(device_address *target_address, uint16_t topic_id, uint16_t msg_id, uint8_t *granted_qos,
+                        return_code_t return_code);
 
     void send_subscribe(device_address *target_address, char *topic_name, uint16_t msg_id, uint8_t qos);
 
@@ -76,7 +85,8 @@ public:
      * Receive wenn short_topic == false
      */
     bool
-    receive_suback(device_address *target_address, uint16_t *new_topic_id, uint16_t msg_id,uint8_t* granted_qos, return_code_t return_code);
+    receive_suback(device_address *target_address, uint16_t *new_topic_id, uint16_t msg_id, uint8_t *granted_qos,
+                   return_code_t return_code);
 
     /*
       void send_searchgw(device_address *address, uint8_t radius);
@@ -90,8 +100,18 @@ public:
 
     device_address getDevice_address(sockaddr_in *addr) const;
 
+    void loop();
+
+    void start_loop();
+
+    void stop_loop();
+
+
     bool receive_any_publish(device_address *target_address, uint8_t *data, uint8_t *data_length,
-                                 uint16_t *topic_id, uint8_t *qos);
+                             uint16_t *topic_id, uint8_t *qos);
+
+    MqttSnReceiverInterface *receiver = nullptr;
+    std::thread thread;
 };
 
 

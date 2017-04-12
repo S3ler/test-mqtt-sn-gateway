@@ -9,8 +9,9 @@
 #include <PahoMqttTestMessageHandler.h>
 #include <gtest_main.cc>
 #include <libgen.h>
-#include <ReceiverMock.h>
+#include <MqttReceiverMock.h>
 #include <LinuxUdpClientFake.h>
+#include <MockMqttSnReceiver.h>
 #include "../implementation/linux-mqtt-sn-gateway/src/Implementation/LinuxGateway.h"
 
 using ::testing::_;
@@ -111,7 +112,7 @@ TEST_F(LinuxUdpGateway_Publish_Check, QoS_M1_Publish) {
     gateway.start_loop();
 
 
-    ReceiverMock receiver;
+    MqttReceiverMock receiver;
     EXPECT_CALL(receiver, receive(AllOf(Field(&MqttPublish::data, data), Field(&MqttPublish::topic, topic))));
 
     PahoMqttTestMessageHandler reveiving_client;
@@ -137,15 +138,21 @@ TEST_F(LinuxUdpGateway_Publish_Check, QoS_M1_Publish) {
     memcpy(&gw_address.bytes[4], &ntohs_port, sizeof(uint16_t));
 
     LinuxUdpClientFake clientFake;
+    MqttSnReceiverMock receiverMock;
+    clientFake.setMqttSnReceiver(&receiverMock);
+    clientFake.start_loop();
     clientFake.send_publish(&gw_address, (const uint8_t *) data.c_str(),
                             (uint8_t) data.length(), (uint16_t) 50, (int8_t) -1, false, true);
 
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
     // theoratically this is always the teardown:
+    clientFake.stop_loop();
     reveiving_client.stop_loop();
     gateway.stop_loop();
 
     std::cout << std::endl;
     ASSERT_TRUE(true);
 }
+
+//TODO for further publish test, we need to check connect functionality

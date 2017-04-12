@@ -10,9 +10,9 @@
 #include "MqttPublish.h"
 
 
-class ReceiverInterface {
+class MqttReceiverInterface {
 public:
-    virtual ~ReceiverInterface() {};
+    virtual ~MqttReceiverInterface() {};
     virtual bool receive(MqttPublish source)=0;
 
 };

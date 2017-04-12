@@ -14,6 +14,6 @@ file(GLOB PAHO_SOURCE_FILES
         )
 
 
-set(SOURCE_FILES PahoMqttTestMessageHandler.h PahoMqttTestMessageHandler.cpp ReceiverInterface.h ReceiverMock.cpp ReceiverMock.h MqttPublish.cpp MqttPublish.h LinuxUdpClientFake.h LinuxUdpClientFake.cpp)
+set(SOURCE_FILES PahoMqttTestMessageHandler.h PahoMqttTestMessageHandler.cpp MqttReceiverInterface.h MqttReceiverMock.cpp MqttReceiverMock.h MqttPublish.cpp MqttPublish.h LinuxUdpClientFake.h LinuxUdpClientFake.cpp MqttSnReceiverInterface.cpp MqttSnReceiverInterface.h MockMqttSnReceiver.cpp MockMqttSnReceiver.h)
 add_library(PahoLinuxTestMqttMessageHandler ${SOURCE_FILES} ${PAHO_SOURCE_FILES} )
 

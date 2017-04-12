@@ -251,7 +251,7 @@ bool PahoMqttTestMessageHandler::stop_loop() {
     return stopped;
 }
 
-void PahoMqttTestMessageHandler::setReceiver(ReceiverInterface *pMock) {
+void PahoMqttTestMessageHandler::setReceiver(MqttReceiverInterface *pMock) {
     this->receiver = pMock;
     global__receiver = this;
 }

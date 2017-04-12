@@ -8,12 +8,12 @@
 
 #include <gmock/gmock-generated-function-mockers.h>
 #include <gmock/gmock-generated-matchers.h>
-#include "ReceiverInterface.h"
+#include "MqttReceiverInterface.h"
 
 
 // MATCHER_P(received_equal, data, "") { return (memcmp(arg, data, data[0]) == 0); }
 
-class ReceiverMock : public ReceiverInterface {
+class MqttReceiverMock : public MqttReceiverInterface {
 public:
     MOCK_METHOD1(receive, bool(MqttPublish source));
 };
