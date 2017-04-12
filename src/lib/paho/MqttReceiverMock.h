@@ -11,8 +11,6 @@
 #include "MqttReceiverInterface.h"
 
 
-// MATCHER_P(received_equal, data, "") { return (memcmp(arg, data, data[0]) == 0); }
-
 class MqttReceiverMock : public MqttReceiverInterface {
 public:
     MOCK_METHOD1(receive, bool(MqttPublish source));
