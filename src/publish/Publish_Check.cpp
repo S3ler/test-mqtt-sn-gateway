@@ -24,14 +24,14 @@ using ::testing::SetArgPointee;
 using ::testing::Field;
 
 void stop_broker() {
-    std::string command = "docker rm -f test-broker";
+    std::string command = "docker rm -f test-broker 2> /dev/null  1> /dev/null";
     std::system(command.c_str());
 }
 
 
 void start_broker() {
     stop_broker();
-    std::string command = "docker run -d --name test-broker -p 1884:1883 jllopis/mosquitto:v1.4.10";
+    std::string command = "docker run -d --name test-broker -p 1884:1883 jllopis/mosquitto:v1.4.10 2> /dev/null 1> /dev/null";
     //std::string command = "docker run -d --name test-broker -p 1884:1883 -p 9883:9883 jllopis/mosquitto:v1.4.10";
     std::system(command.c_str());
 }
