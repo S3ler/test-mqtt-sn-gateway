@@ -22,16 +22,19 @@ using ::testing::Invoke;
 using ::testing::SetArgPointee;
 using ::testing::Field;
 
+void stop_broker() {
+    std::string command = "docker rm -f test-broker";
+    std::system(command.c_str());
+}
+
+
 void start_broker() {
+    stop_broker();
     std::string command = "docker run -d --name test-broker -p 1884:1883 jllopis/mosquitto:v1.4.10";
     //std::string command = "docker run -d --name test-broker -p 1884:1883 -p 9883:9883 jllopis/mosquitto:v1.4.10";
     std::system(command.c_str());
 }
 
-void stop_broker() {
-    std::string command = "docker rm -f test-broker";
-    std::system(command.c_str());
-}
 
 /*
 char **t_argv;
@@ -51,7 +54,7 @@ class LinuxUdpGateway_Publish_Check : public ::testing::Test {
 
 protected:
     virtual void TearDown() {
-        //stop_broker();
+        stop_broker();
         //std::system(("cd " + _rootPath + " && rm *.PRE && rm *.CON && rm *.REG && rm *.SUB && rm *.WIL && rm *.PUB && rm CLIENTS").c_str());
         std::remove((_rootPath + "/00000000.SUB").c_str());
         std::remove((_rootPath + "/MQTT.SUB").c_str());
@@ -62,7 +65,7 @@ protected:
     }
 
     virtual void SetUp() {
-        //start_broker();
+        start_broker();
         _rootPath = std::string(dirname(t_argv[0]));
         create_configuration_files();
     }
@@ -109,9 +112,7 @@ TEST_F(LinuxUdpGateway_Publish_Check, QoS_M1_Publish) {
 
 
     ReceiverMock receiver;
-    //TODO find out how to test both fields at once (maybe with: .With(AllOf(..)) )
-    // EXPECT_CALL(receiver, receive(Field(&MqttPublish::topic, topic)));
-    EXPECT_CALL(receiver, receive(Field(&MqttPublish::data, data)));
+    EXPECT_CALL(receiver, receive(AllOf(Field(&MqttPublish::data, data), Field(&MqttPublish::topic, topic))));
 
     PahoMqttTestMessageHandler reveiving_client;
     reveiving_client.setReceiver(&receiver);
