@@ -14,5 +14,7 @@ cmake-build-debug/*
 
 html/*
 
-MQTT.CON
 MQTT.SUB
+CLIENTS
+MQTT.CON
+TOPICS.PRE
