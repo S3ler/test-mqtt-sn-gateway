@@ -233,6 +233,7 @@ bool PahoMqttTestMessageHandler::receive_publish(char *topic, uint8_t *payload, 
 
 bool PahoMqttTestMessageHandler::start_loop() {
     this->thread = std::thread(&PahoMqttTestMessageHandler::loop, this);
+    this->thread.detach();
 }
 
 void PahoMqttTestMessageHandler::loop() {
@@ -243,11 +244,13 @@ void PahoMqttTestMessageHandler::loop() {
             error = true;
         }
     }
+    if (client->isConnected()) {
+        client->yield(300);
+    }
 }
 
 bool PahoMqttTestMessageHandler::stop_loop() {
-    stopped = true;
-    thread.join();
+    this->stopped = true;
     return stopped;
 }
 

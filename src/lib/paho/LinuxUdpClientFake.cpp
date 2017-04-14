@@ -478,11 +478,11 @@ void LinuxUdpClientFake::setMqttSnReceiver(MqttSnReceiverInterface *receiverInte
 
 void LinuxUdpClientFake::start_loop() {
     this->thread = std::thread(&LinuxUdpClientFake::loop, this);
+    this->thread.detach();
 }
 
 void LinuxUdpClientFake::stop_loop() {
-    stopped = true;
-    this->thread.join();
+    this->stopped = true;
 }
 
 void LinuxUdpClientFake::loop() {
@@ -584,7 +584,7 @@ void LinuxUdpClientFake::receive(uint8_t *data, uint16_t length) {
             this->receiver->receive_willmsgresp((msg_willmsgresp *) data);
             break;
         default:
-            this->receiver->receive_any(data);
+            this->receiver->receive_any_message((message_type) header->type);
             break;
     }
 }

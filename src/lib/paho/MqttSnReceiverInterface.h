@@ -60,7 +60,8 @@ public:
 
     virtual void receive_willmsgresp(msg_willmsgresp *pWillmsgresp)=0;
 
-    virtual void receive_any(uint8_t *pData)=0;
+    virtual void receive_any_message(message_type type)=0;
+
 };
 
 

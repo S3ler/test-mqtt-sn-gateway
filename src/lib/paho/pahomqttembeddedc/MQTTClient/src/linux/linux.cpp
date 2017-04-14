@@ -73,6 +73,9 @@ public:
 		if (rc == 0)
 		{
 			mysock = socket(family, type, 0);
+			int iSetOption = 1;
+			setsockopt(mysock, SOL_SOCKET, SO_REUSEADDR, (char*)&iSetOption,
+					   sizeof(iSetOption));
 			if (mysock != -1)
 			{
 				int opt = 1;
@@ -122,6 +125,9 @@ public:
 		if (rc == 0)
 		{
 			mysock = socket(family, type, 0);
+			int iSetOption = 1;
+			setsockopt(mysock, SOL_SOCKET, SO_REUSEADDR, (char*)&iSetOption,
+					   sizeof(iSetOption));
 			if (mysock != -1)
 			{
 				int opt = 1;

@@ -6,6 +6,7 @@
 #include <netinet/in.h>
 #include <thread>
 #include <MqttReceiverInterface.h>
+#include <atomic>
 
 class MqttReceiverInterface;
 
@@ -59,7 +60,7 @@ public:
 private:
     int64_t ip_address = -1;
     bool error = false;
-    bool stopped= false;
+    std::atomic<bool> stopped{false};
     std::thread thread;
     MqttReceiverInterface *receiver = nullptr;
 };

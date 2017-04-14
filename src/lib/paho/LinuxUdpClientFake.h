@@ -9,6 +9,7 @@
 #include<arpa/inet.h>
 #include "MqttSnReceiverInterface.h"
 // #include "mqttsn_messages.h"
+#include <atomic>
 
 #define BUFLEN 255
 #define PORT 8888
@@ -27,7 +28,8 @@ public:
 
     device_address address;
 
-    bool stopped = false;
+    std::atomic<bool> stopped{false};
+
 
 private:
     void connect(device_address *address);

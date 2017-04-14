@@ -55,8 +55,9 @@ public:
     void(msg_willtopicresp *pWilltopicresp));
     MOCK_METHOD1(receive_willmsgresp,
     void(msg_willmsgresp *pWillmsgresp));
-    MOCK_METHOD1(receive_any,
-    void(uint8_t *pData));
+    MOCK_METHOD1(receive_any_message,
+                 void(message_type type));
+
 };
 
 
