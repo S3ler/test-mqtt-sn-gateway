@@ -201,6 +201,12 @@ void LinuxUdpClientFake::connect(device_address *address) {
         exit(1);
     }
 
+    int enable = 1;
+    if (setsockopt(s, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(enable)) == -1) {
+        std::cout << "socket" << std::endl;
+        exit(1);
+    }
+
     memset(&sin, 0, sizeof(sin));
     sin.sin_family = AF_INET;
     sin.sin_port = htons(fromport);
