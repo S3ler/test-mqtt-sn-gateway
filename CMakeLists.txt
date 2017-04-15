@@ -7,7 +7,7 @@ set(TO_TEST_IMPLEMENTATION_FOLDER linux-mqtt-sn-gateway)
 
 set(TEST_FILES
         src/publish/Publish_Check.cpp
-        )
+        src/publish/LinuxUdpGateway_Connect_Test.cpp src/publish/google_test_main_arguments.h)
 
 add_executable(runAll_Tests ${TEST_FILES})
 

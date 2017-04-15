@@ -1,53 +1,26 @@
+//
+// Created by bele on 14.04.17.
+//
 
-#include <gmock/gmock-matchers.h>
-#include <gmock/gmock-cardinalities.h>
-#include <gmock/gmock-actions.h>
-#include <gmock/gmock-more-actions.h>
-#include <gmock/gmock-generated-matchers.h>
-#include <chrono>
-#include <thread>
-#include <PahoMqttTestMessageHandler.h>
-#include <libgen.h>
+#include <gtest/gtest.h>
+#include <LinuxGateway.h>
 #include <MqttReceiverMock.h>
 #include <LinuxUdpClientFake.h>
 #include <MockMqttSnReceiver.h>
-#include "../implementation/linux-mqtt-sn-gateway/src/Implementation/LinuxGateway.h"
+#include <libgen.h>
 #include "google_test_main_arguments.h"
 
-using ::testing::_;
-using ::testing::AtLeast;
-using ::testing::Return;
-using ::testing::Args;
-using ::testing::SaveArg;
-using ::testing::Invoke;
-using ::testing::SetArgPointee;
-using ::testing::Field;
 
-
-/*
-Modification in gtest main:
-char **t_argv;
-int t_argc;
-
-GTEST_API_ int main(int argc, char **argv) {
-  printf("Running main() from gtest_main.cc\n");
-  testing::InitGoogleTest(&argc, argv);
-  t_argc = argc;
-  t_argv = argv;
-  return RUN_ALL_TESTS();
-}
- */
-
-class LinuxUdpGateway_Publish_Check : public ::testing::Test {
+class LinuxUdpGateway_Connect_Test : public ::testing::Test{
 
 protected:
-
     LinuxGateway gateway;
     MqttReceiverMock receiver;
     LinuxUdpClientFake clientFake;
     MqttSnReceiverMock receiverMock;
     PahoMqttTestMessageHandler reveiving_client;
     std::string _rootPath;
+
 
     device_address gw_address;
     uint8_t ip[4] = {127, 0, 0, 1};
@@ -100,6 +73,7 @@ protected:
         std::remove((_rootPath + "/TOPICS.PRE").c_str());
     }
 
+
     virtual void SetUp() {
         start_broker();
         _rootPath = std::string(dirname(t_argv[0]));
@@ -144,31 +118,16 @@ protected:
     }
 
 public:
-    LinuxUdpGateway_Publish_Check() : Test() {
+    LinuxUdpGateway_Connect_Test() : Test() {
 
     }
 
-    virtual ~LinuxUdpGateway_Publish_Check() {
+    virtual ~LinuxUdpGateway_Connect_Test() {
 
     }
 
 };
 
+TEST_F(LinuxUdpGateway_Connect_Test, Connect_without_Will){
 
-TEST_F(LinuxUdpGateway_Publish_Check, QoS_M1_Publish) {
-    // expected - incoming publish
-    std::string topic = "/unsubscribed/client/topic/name";
-    std::string data = "some qos m1 data";
-    EXPECT_CALL(receiver, receive(AllOf(Field(&MqttPublish::data, data), Field(&MqttPublish::topic, topic))));
-
-    // when -  send publish with qos -1
-    clientFake.send_publish(&gw_address, (const uint8_t *) data.c_str(),
-                            (uint8_t) data.length(), (uint16_t) 50, (int8_t) -1, false, true);
-
-    // wait until all message are exchanged
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-
-    std::cout << std::endl;
 }
-
-

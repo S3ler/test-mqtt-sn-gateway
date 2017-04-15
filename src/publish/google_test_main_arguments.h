@@ -1,0 +1,9 @@
+//
+// Created by bele on 15.04.17.
+//
+
+#ifndef TEST_MQTT_SN_GATEWAY_GOOGLE_TEST_MAIN_ARGUMENTS_H
+#define TEST_MQTT_SN_GATEWAY_GOOGLE_TEST_MAIN_ARGUMENTS_H
+extern char **t_argv;
+extern int t_argc;
+#endif //TEST_MQTT_SN_GATEWAY_GOOGLE_TEST_MAIN_ARGUMENTS_H
