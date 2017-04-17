@@ -82,7 +82,7 @@ struct test_connect {
         }
         if (client_id_length == 0) {
             length = ((uint8_t) (6 + 0));
-        }else{
+        } else {
             length = ((uint8_t) (6 + 1)) + client_id_length;
         }
         type = TEST_MQTTSN_CONNECT;
@@ -101,13 +101,13 @@ struct test_connect {
 };
 
 struct test_disconnect {
-    uint8_t length=2;
-    message_type_test type=TEST_MQTTSN_DISCONNECT;
+    uint8_t length = 2;
+    message_type_test type = TEST_MQTTSN_DISCONNECT;
 };
 
-struct test_connack  {
-    uint8_t length=3;
-    message_type_test type=TEST_MQTTSN_CONNACK;
+struct test_connack {
+    uint8_t length = 3;
+    message_type_test type = TEST_MQTTSN_CONNACK;
     return_code_test return_code;
 
     test_connack(return_code_test return_code) : return_code(return_code) {
@@ -119,8 +119,8 @@ struct test_connack  {
 
 
 struct test_willtopicreq {
-    uint8_t length=2;
-    message_type_test type=TEST_MQTTSN_WILLTOPICREQ;
+    uint8_t length = 2;
+    message_type_test type = TEST_MQTTSN_WILLTOPICREQ;
 };
 
 struct test_willtopic {
@@ -128,7 +128,8 @@ struct test_willtopic {
     message_type_test type;
     uint8_t flags;
     char will_topic[UINT16_MAX + UINT8_MAX];
-    test_willtopic(char* willtopic, int8_t qos, bool retain) {
+
+    test_willtopic(char *willtopic, int8_t qos, bool retain) {
         memset(this, 0, sizeof(test_willtopic));
 
         uint8_t willtopic_length = (uint8_t) strlen(willtopic);
@@ -137,9 +138,9 @@ struct test_willtopic {
         }
         this->length = 0;
         if (willtopic_length == 0) {
-            length = (uint8_t)(3+0);
-        }else{
-            length = (uint8_t)(3+1) + willtopic_length;
+            length = (uint8_t) (3 + 0);
+        } else {
+            length = (uint8_t) (3 + 1) + willtopic_length;
         }
 
         type = TEST_MQTTSN_WILLTOPIC;
@@ -161,8 +162,8 @@ struct test_willtopic {
 };
 
 struct test_willmsgreq {
-    uint8_t length=2;
-    message_type_test type=TEST_MQTTSN_WILLMSGREQ;
+    uint8_t length = 2;
+    message_type_test type = TEST_MQTTSN_WILLMSGREQ;
 };
 
 struct test_willmsg {
@@ -170,28 +171,29 @@ struct test_willmsg {
     message_type_test type;
     uint8_t willmsg[UINT16_MAX + UINT8_MAX];
 
-    test_willmsg(const uint8_t* willmsg, uint16_t willmsg_len) {
+    test_willmsg(const uint8_t *willmsg, uint16_t willmsg_len) {
         memset(this, 0, sizeof(test_willmsg));
         if (willmsg_len > UINT16_MAX) {
             throw new std::invalid_argument("willmsg longer then UINT16_MAX");
         }
         this->type = TEST_MQTTSN_WILLMSG;
-        this->length = (uint8_t)( 2 + willmsg_len);
+        this->length = (uint8_t) (2 + willmsg_len);
         memcpy(this->willmsg, willmsg, willmsg_len);
     }
 };
 
 #pragma pack(push, 1)
+
 struct test_publish {
     uint8_t length;
-   message_type_test type;
+    message_type_test type;
     uint8_t flags;
     uint16_t topic_id;
     uint16_t message_id;
     uint8_t data[UINT16_MAX + UINT8_MAX];
 
     test_publish(bool dup, int8_t qos, bool retain, bool short_topic, uint16_t topic_id, uint16_t msg_id,
-                const uint8_t *payload, uint8_t payload_len) : topic_id(topic_id), message_id(msg_id) {
+                 const uint8_t *payload, uint8_t payload_len) : topic_id(topic_id), message_id(msg_id) {
         memset(this, 0, sizeof(test_publish));
         if (payload_len > UINT16_MAX) {
             throw new std::invalid_argument("payload longer then UINT16_MAX");
@@ -224,7 +226,23 @@ struct test_publish {
         memcpy(this->data, payload, payload_len);
     }
 };
-#pragma pack(pop)
 
+#pragma pack(pop)
+#pragma pack(push, 1)
+
+struct test_puback {
+    uint8_t length = 7;
+    message_type_test type = TEST_MQTTSN_PUBACK;
+    uint16_t topic_id;
+    uint16_t msg_id;
+    return_code_test return_code;
+
+    test_puback(uint16_t topic_id, uint16_t msg_id, return_code_test return_code)
+            : topic_id(topic_id), msg_id(msg_id), return_code(return_code) {
+        length = 7;
+        type = TEST_MQTTSN_PUBACK;
+    }
+};
+#pragma pack(pop)
 
 #endif //TEST_MQTT_SN_GATEWAY_TEST_MQTTSN_TEST_MESSAGES_H

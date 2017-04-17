@@ -190,7 +190,7 @@ TEST_F(LinuxUdpGateway_Connect_Test, Connect_withminimumclientidsize_return_acce
     std::cout << std::endl;
 }
 
-TEST_F(LinuxUdpGateway_Connect_Test, DISABLED_Connect_withmaximumclientidsize_return_accepted) {
+TEST_F(LinuxUdpGateway_Connect_Test, Connect_withmaximumclientidsize_return_accepted) {
 
     test_connack expected_connack(TEST_ACCEPTED);
 

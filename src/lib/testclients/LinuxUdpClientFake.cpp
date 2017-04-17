@@ -153,6 +153,8 @@ void LinuxUdpClientFake::receive(uint8_t *data, uint16_t length) {
         throw new std::invalid_argument("gateway address not set");
     }
     test_header *header = (test_header *) data;
+    test_puback* msg = (test_puback*) data;
+
     switch (header->type) {
         /*
         case TEST_MQTTSN_ADVERTISE:
@@ -181,6 +183,12 @@ void LinuxUdpClientFake::receive(uint8_t *data, uint16_t length) {
         case TEST_MQTTSN_WILLMSG:
             this->receiver->receiver_willmsg((test_willmsg *) data);
             break;
+        case TEST_MQTTSN_PUBLISH:
+            this->receiver->receive_publish((test_publish *) data);
+            break;
+        case TEST_MQTTSN_PUBACK:
+            this->receiver->receive_puback((test_puback*) data);
+            break;
             /*
         case TEST_MQTTSN_REGISTER:
             this->receiver->receiver_register((msg_register *) data);
@@ -188,12 +196,7 @@ void LinuxUdpClientFake::receive(uint8_t *data, uint16_t length) {
         case TEST_MQTTSN_REGACK:
             this->receiver->receive_regack((msg_regack *) data);
             break;
-        case TEST_MQTTSN_PUBLISH:
-            this->receiver->receive_publish((msg_publish *) data);
-            break;
-        case TEST_MQTTSN_PUBACK:
-            this->receiver->receive_puback((msg_puback *) data);
-            break;
+
         case TEST_MQTTSN_PUBCOMP:
             this->receiver->receive_pubcomp((msg_pubcomp *) data);
             break;

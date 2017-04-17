@@ -25,6 +25,10 @@ public:
                  void(test_willmsgreq *pHeader));
     MOCK_METHOD1(receiver_willmsg,
                  void(test_willmsg *pWillmsgreq));
+    MOCK_METHOD1(receive_publish,
+                 void(test_publish *pPublish));
+    MOCK_METHOD1(receive_puback,
+                 void(test_puback *pPuback));
     MOCK_METHOD3(receive_any_message,
                  void(uint16_t length, message_type_test type, uint8_t* data));
 };

@@ -33,6 +33,11 @@ public:
     virtual void receive_willmsgreq(test_willmsgreq *pWillmsgreq)=0;
 
     virtual void receiver_willmsg(test_willmsg *pWillmsg)=0;
+
+    virtual void receive_publish(test_publish* pPublish)=0;
+
+    virtual void receive_puback(test_puback *pPuback)=0;
+
     /*
     virtual void receiver_register(msg_register *pRegister)=0;
 
