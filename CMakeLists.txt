@@ -14,7 +14,7 @@ add_executable(runAll_Tests ${TEST_FILES})
 include_directories(src/lib/googletest/googlemock/include)
 include_directories(src/lib/googletest/googletest/src)
 include_directories(src/lib/googletest/googletest/include)
-include_directories(src/lib/paho)
+include_directories(src/lib/testclients)
 
 include_directories(src/implementation/linux-mqtt-sn-gateway/src/arduino-linux-abstraction/src)
 include_directories(src/implementation/linux-mqtt-sn-gateway/src/core-mqtt-sn-gateway/src)
@@ -26,7 +26,7 @@ include_directories(src/implementation/linux-mqtt-sn-gateway/src/Implementation/
 
 
 add_subdirectory(src/lib/googletest)
-add_subdirectory(src/lib/paho)
+add_subdirectory(src/lib/testclients)
 add_subdirectory(src/implementation/${TO_TEST_IMPLEMENTATION_FOLDER})
 
 target_link_libraries(runAll_Tests lib-${TO_TEST_IMPLEMENTATION_FOLDER} PahoLinuxTestMqttMessageHandler  gtest gtest_main gmock gmock_main)
