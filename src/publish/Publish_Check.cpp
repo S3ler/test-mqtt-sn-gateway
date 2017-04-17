@@ -132,12 +132,14 @@ protected:
         reveiving_client.setServer((uint8_t *) &ip, port);
         ASSERT_TRUE(reveiving_client.connect("Test Client"));
         for (auto &&receiver_topic : receiver_topics) {
-            ASSERT_TRUE(reveiving_client.subscribe(receiver_topic.c_str(),0));
+            ASSERT_TRUE(reveiving_client.subscribe(receiver_topic.c_str(), 0));
         }
         reveiving_client.start_loop();
+
+        clientFake.set_gw_address(&gw_address);
     }
 
-    void stopAllLoops(){
+    void stopAllLoops() {
         clientFake.stop_loop();
         reveiving_client.stop_loop();
         gateway.stop_loop();
@@ -154,21 +156,19 @@ public:
 
 };
 
-
 TEST_F(LinuxUdpGateway_Publish_Check, QoS_M1_Publish) {
     // expected - incoming publish
-    std::string topic = "/unsubscribed/client/topic/name";
-    std::string data = "some qos m1 data";
-    EXPECT_CALL(receiver, receive(AllOf(Field(&MqttPublish::data, data), Field(&MqttPublish::topic, topic))));
+    const char *topic = "/unsubscribed/client/topic/name";
+    const char *data = "some qos m1 data";
+    EXPECT_CALL(receiver, receive(AllOf(Field(&MqttPublish::data, data),
+                                        Field(&MqttPublish::topic, topic))));
 
     // when -  send publish with qos -1
-    clientFake.send_publish(&gw_address, (const uint8_t *) data.c_str(),
-                            (uint8_t) data.length(), (uint16_t) 50, (int8_t) -1, false, true);
+    clientFake.send_publish(false, (int8_t) -1, false, false, (uint16_t) 50, 0, (const uint8_t *) data,
+                            (uint8_t) (strlen(data) + 1));
 
     // wait until all message are exchanged
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
     std::cout << std::endl;
 }
-
-

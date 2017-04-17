@@ -3,12 +3,10 @@
 
 
 #include <global_defines.h>
-#include <mqttsn_messages.h>
-#include<stdio.h>    //printf
-#include<string.h> //memset
+#include<stdio.h>
+#include<string.h>
 #include<arpa/inet.h>
 #include "MqttSnReceiverInterface.h"
-// #include "mqttsn_messages.h"
 #include <atomic>
 
 #define BUFLEN 255
@@ -30,77 +28,23 @@ public:
 
     std::atomic<bool> stopped{false};
 
+public:
+
+    void send_connect(const char *client_id, uint16_t duration, bool clean_session, bool will);
+
+    void send_willtopic(const char *willtopic, uint8_t qos, bool retain);
+
+    void send_willmsg(const uint8_t *willmsg, uint8_t willmsg_len);
+
+    void send_publish(bool dup, int8_t qos, bool retain, bool short_topic, uint16_t topic_id,
+                      uint16_t msg_id, const uint8_t *data, uint8_t data_length);
 
 private:
     void connect(device_address *address);
 
-
     void disconnect();
 
 public:
-
-    void setMqttSnReceiver(MqttSnReceiverInterface *receiverInterface);
-
-    void receive(uint8_t *data, uint16_t length);
-
-    void send_connect(device_address *target_address, const char *client_id, uint16_t duration, bool clean_session,
-                      bool will, bool close_connection = true);
-
-    bool receive_willtopicreq(device_address *target_address);
-
-    void send_willtopic(device_address *target_address, const char *willtopic, uint8_t qos, bool retain);
-
-    bool receive_willmsgreq(device_address *target_address);
-
-    void send_willmsg(device_address *target_address, const char *willmsg);
-
-    bool receive_connack(device_address *target_address, return_code_t return_code, bool close_connection = true);
-
-    void send_disconnect(device_address *target_address, bool close_connection = true);
-
-    bool receive_disconnect(device_address *target_address, bool close_connection = true);
-
-    void send_publish(device_address *target_address, const uint8_t *data, uint8_t data_length, uint16_t topic_id,
-                      int8_t qos, bool short_topic, bool close_connection = true);
-
-    void send_register(device_address *target_address, uint16_t msg_id, const char *topic_name,
-                       bool close_connection);
-
-    bool receive_regack(device_address *target_address, uint16_t msg_id, uint16_t *new_topic_id,
-                        return_code_t return_code, bool close_connection);
-
-    bool receive_puback(device_address *target_address, uint16_t topic_id, return_code_t return_code,
-                        bool close_connection);
-
-    void
-    send_subscribe(device_address *target_address, bool short_topic, uint16_t topic_id, uint16_t msg_id, uint8_t qos);
-
-    /**
-     * Receive wenn short_topic == true
-     */
-    bool receive_suback(device_address *target_address, uint16_t topic_id, uint16_t msg_id, uint8_t *granted_qos,
-                        return_code_t return_code);
-
-    void send_subscribe(device_address *target_address, char *topic_name, uint16_t msg_id, uint8_t qos);
-
-    /**
-     * Receive wenn short_topic == false
-     */
-    bool
-    receive_suback(device_address *target_address, uint16_t *new_topic_id, uint16_t msg_id, uint8_t *granted_qos,
-                   return_code_t return_code);
-
-    /*
-      void send_searchgw(device_address *address, uint8_t radius);
-
-      void send_unsubscribe(device_address *address, uint16_t topic_id, uint16_t msg_id, bool short_topic, bool dup);
-
-      void send_pingreq(device_address *address, uint8_t *bytes);
-
-      void send_disconnect(device_address *address, uint16_t duration);
-      */
-
-    device_address getDevice_address(sockaddr_in *addr) const;
 
     void loop();
 
@@ -108,12 +52,18 @@ public:
 
     void stop_loop();
 
+    void receive(uint8_t *data, uint16_t length);
 
-    bool receive_any_publish(device_address *target_address, uint8_t *data, uint8_t *data_length,
-                             uint16_t *topic_id, uint8_t *qos);
+    device_address getDevice_address(sockaddr_in *addr) const;
+
+    void set_gw_address(device_address *address);
+
+    void setMqttSnReceiver(MqttSnReceiverInterface *receiverInterface);
+
 
     MqttSnReceiverInterface *receiver = nullptr;
     std::thread thread;
+    device_address *gw_address = nullptr;
 };
 
 

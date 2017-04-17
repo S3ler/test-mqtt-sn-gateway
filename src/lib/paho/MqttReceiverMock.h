@@ -13,6 +13,7 @@
 
 class MqttReceiverMock : public MqttReceiverInterface {
 public:
+    virtual ~MqttReceiverMock() {};
     MOCK_METHOD1(receive, bool(MqttPublish source));
 };
 
