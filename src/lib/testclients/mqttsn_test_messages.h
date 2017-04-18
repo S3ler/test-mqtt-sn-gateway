@@ -245,7 +245,7 @@ struct test_puback {
 
 #pragma pack(push, 1)
 struct test_register {
-    uint8_t length;
+    uint8_t length = 6;
     message_type_test type = TEST_MQTTSN_REGISTER;
     uint16_t topic_id;
     uint16_t msg_id;
