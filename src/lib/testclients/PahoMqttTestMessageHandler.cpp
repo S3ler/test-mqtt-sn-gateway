@@ -1,3 +1,4 @@
+#include <iostream>
 #include "PahoMqttTestMessageHandler.h"
 
 #define MQTT_LOG 1
@@ -219,13 +220,8 @@ bool PahoMqttTestMessageHandler::unsubscribe(const char *topic) {
 }
 
 bool PahoMqttTestMessageHandler::receive_publish(char *topic, uint8_t *payload, uint32_t length) {
-    // CORE_RESULT publish_result = core->publish(topic, payload, length, false);
-    // TODO implement me
-    // return publish_result == SUCCESS;}
-    if (*(payload + length) != 0) {
-        throw new std::invalid_argument("Received Mqtt payload which is not a string");
-    }
-    MqttPublish publish((const char *) topic, (const char *) payload);
+    // TODO
+    MqttPublish publish((const char *) topic, (const uint8_t *) payload, (uint16_t)length);
     this->receiver->receive(publish);
     //this->receiver->r
     return false;

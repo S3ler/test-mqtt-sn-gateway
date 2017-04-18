@@ -4,6 +4,7 @@
 #include <gmock/gmock-actions.h>
 #include <gmock/gmock-more-actions.h>
 #include <gmock/gmock-generated-matchers.h>
+#include <vector>
 #include <chrono>
 #include <thread>
 #include <PahoMqttTestMessageHandler.h>
@@ -94,7 +95,11 @@ protected:
 
         stop_broker();
         //std::system(("cd " + _rootPath + " && rm *.PRE && rm *.CON && rm *.REG && rm *.SUB && rm *.WIL && rm *.PUB && rm CLIENTS").c_str());
+        std::remove((_rootPath + "/00000000.PUB").c_str());
+        std::remove((_rootPath + "/00000000.REG").c_str());
         std::remove((_rootPath + "/00000000.SUB").c_str());
+        std::remove((_rootPath + "/00000000.WIL").c_str());
+
         std::remove((_rootPath + "/MQTT.SUB").c_str());
         std::remove((_rootPath + "/CLIENTS").c_str());
 
@@ -176,11 +181,17 @@ ACTION_P(check_puback, expected) {
 
 
 
-TEST_F(LinuxUdpGateway_Publish_Check, QoS_M1_Publish) {
+TEST_F(LinuxUdpGateway_Publish_Check, PredefinedTopic_QoS_M1_Publish) {
     // expected - incoming publish
     const char *topic = "/unsubscribed/client/topic/name";
     const char *data = "some qos m1 data";
-    EXPECT_CALL(mqtt_receiver, receive(AllOf(Field(&MqttPublish::data, data),
+
+    std::string data_string(data);
+    std::vector<uint8_t> data_vector;
+    std::copy( data_string.begin(), data_string.end(), std::back_inserter(data_vector));
+    data_vector.push_back('\0');
+
+    EXPECT_CALL(mqtt_receiver, receive(AllOf(Field(&MqttPublish::data, data_vector),
                                         Field(&MqttPublish::topic, topic))));
 
     // when -  send publish with qos -1
@@ -193,25 +204,7 @@ TEST_F(LinuxUdpGateway_Publish_Check, QoS_M1_Publish) {
     std::cout << std::endl;
 }
 
-TEST_F(LinuxUdpGateway_Publish_Check, Placeholder1) {
-    // expected - incoming publish
-    const char *topic = "/unsubscribed/client/topic/name";
-    const char *data = "some qos m1 data";
-    EXPECT_CALL(mqtt_receiver, receive(AllOf(Field(&MqttPublish::data, data),
-                                        Field(&MqttPublish::topic, topic))));
-
-    // when -  send publish with qos -1
-    mqtt_sn_sender.send_publish(false, (int8_t) -1, false, false, (uint16_t) 50, 0, (const uint8_t *) data,
-                            (uint8_t) (strlen(data) + 1));
-
-    // wait until all message are exchanged
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-
-    std::cout << std::endl;
-}
-
-
-TEST_F(LinuxUdpGateway_Publish_Check, QoS_0_Publish) {
+TEST_F(LinuxUdpGateway_Publish_Check, PredefinedTopic_QoS_0_Publish) {
 
     test_connack expected_connack(TEST_ACCEPTED);
     EXPECT_CALL(mqtt_sn_receiver, receive_connack(_)).WillOnce(check_connack(expected_connack));
@@ -219,8 +212,15 @@ TEST_F(LinuxUdpGateway_Publish_Check, QoS_0_Publish) {
     // expected - incoming publish
     const char *topic = "/unsubscribed/client/topic/name";
     const char *data = "some qos 0 data";
-    EXPECT_CALL(mqtt_receiver, receive(AllOf(Field(&MqttPublish::data, data),
-                                        Field(&MqttPublish::topic, topic))));
+
+    std::string data_string(data);
+    std::vector<uint8_t> data_vector;
+    std::copy( data_string.begin(), data_string.end(), std::back_inserter(data_vector));
+    data_vector.push_back('\0');
+
+    EXPECT_CALL(mqtt_receiver, receive(AllOf(Field(&MqttPublish::data, data_vector),
+                                             Field(&MqttPublish::topic, topic))));
+
 
     mqtt_sn_sender.send_connect("Mqtt SN Testclient", UINT16_MAX, false, false);
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
@@ -234,24 +234,7 @@ TEST_F(LinuxUdpGateway_Publish_Check, QoS_0_Publish) {
     std::cout << std::endl;
 }
 
-TEST_F(LinuxUdpGateway_Publish_Check, Placeholder2) {
-    // expected - incoming publish
-    const char *topic = "/unsubscribed/client/topic/name";
-    const char *data = "some qos m1 data";
-    EXPECT_CALL(mqtt_receiver, receive(AllOf(Field(&MqttPublish::data, data),
-                                        Field(&MqttPublish::topic, topic))));
-
-    // when -  send publish with qos -1
-    mqtt_sn_sender.send_publish(false, (int8_t) -1, false, false, (uint16_t) 50, 0, (const uint8_t *) data,
-                            (uint8_t) (strlen(data) + 1));
-
-    // wait until all message are exchanged
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-
-    std::cout << std::endl;
-}
-
-TEST_F(LinuxUdpGateway_Publish_Check, QoS_1_Publish) {
+TEST_F(LinuxUdpGateway_Publish_Check, PredefinedTopic_QoS_1_Publish) {
 
     uint16_t msg_id = 10;
     uint16_t topic_id = 50;
@@ -263,9 +246,15 @@ TEST_F(LinuxUdpGateway_Publish_Check, QoS_1_Publish) {
 
     // expected - incoming publish
     const char *topic = "/unsubscribed/client/topic/name";
-    const char *data = "some qos 1 data";
-    EXPECT_CALL(mqtt_receiver, receive(AllOf(Field(&MqttPublish::data, data),
-                                        Field(&MqttPublish::topic, topic))));
+    const char *data = "some qos 0 data";
+
+    std::string data_string(data);
+    std::vector<uint8_t> data_vector;
+    std::copy( data_string.begin(), data_string.end(), std::back_inserter(data_vector));
+    data_vector.push_back('\0');
+
+    EXPECT_CALL(mqtt_receiver, receive(AllOf(Field(&MqttPublish::data, data_vector),
+                                             Field(&MqttPublish::topic, topic))));
 
     mqtt_sn_sender.send_connect("Mqtt SN Testclient", UINT16_MAX, false, false);
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
@@ -278,4 +267,3 @@ TEST_F(LinuxUdpGateway_Publish_Check, QoS_1_Publish) {
 
     std::cout << std::endl;
 }
-

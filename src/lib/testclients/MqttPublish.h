@@ -6,14 +6,17 @@
 #define TEST_MQTT_SN_GATEWAY_MQTTPUBLISH_H
 
 #include <string>
+#include <vector>
 
 class MqttPublish{
 public:
     std::string topic;
-    std::string data;
+    std::vector<uint8_t> data;
 
-    MqttPublish(const char* topic, const char* data):topic(std::string(topic)),data(std::string(data)){
-
+    MqttPublish(const char* topic, const uint8_t * payload, uint16_t payload_length):topic(std::string(topic)){
+        for (uint16_t i = 0; i < payload_length; i++) {
+            data.push_back(*(payload + i));
+        }
     }
 };
 
