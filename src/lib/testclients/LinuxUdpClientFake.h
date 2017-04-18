@@ -41,6 +41,10 @@ public:
 
     void send_register(uint16_t topic_id, uint16_t msg_id, const char *topic_name);
 
+    void send_subscribe(bool dup, uint8_t qos, bool retain, topic_id_type_test topic_id_type, uint16_t msg_id,
+                        const char *topic_name, uint16_t topic_id);
+
+
 private:
     void connect(device_address *address);
 

@@ -26,7 +26,7 @@ void LinuxUdpClientFake::send_willtopic(const char *willtopic, uint8_t qos, bool
     if (s == -1) {
         connect(this->gw_address);
     }
-    test_willtopic msg((char*)willtopic, qos, retain);
+    test_willtopic msg((char *) willtopic, qos, retain);
     if (sendto(s, (const void *) &msg, msg.length, 0, (struct sockaddr *) &si_other, slen) == -1) {
         std::cout << "sendto()willtopic" << std::endl;
     }
@@ -78,7 +78,21 @@ void LinuxUdpClientFake::send_register(uint16_t topic_id, uint16_t msg_id, const
     }
 }
 
+void LinuxUdpClientFake::send_subscribe(bool dup, uint8_t qos, bool retain, topic_id_type_test topic_id_type,
+                                        uint16_t msg_id, const char *topic_name, uint16_t topic_id) {
+    if (this->gw_address == nullptr) {
+        throw new std::invalid_argument("gateway address not set");
+    }
+    if (s == -1) {
+        connect(this->gw_address);
+    }
 
+    test_subscribe msg(dup, qos, retain, topic_id_type, msg_id, topic_name, topic_id);
+
+    if (sendto(s, (const void *) &msg, msg.length, 0, (struct sockaddr *) &si_other, slen) == -1) {
+        std::cout << "sendto()Subscribe" << std::endl;
+    }
+}
 
 void LinuxUdpClientFake::connect(device_address *address) {
 
@@ -201,13 +215,19 @@ void LinuxUdpClientFake::receive(uint8_t *data, uint16_t length) {
             this->receiver->receive_publish((test_publish *) data);
             break;
         case TEST_MQTTSN_PUBACK:
-            this->receiver->receive_puback((test_puback*) data);
+            this->receiver->receive_puback((test_puback *) data);
             break;
         case TEST_MQTTSN_REGISTER:
             this->receiver->receiver_register((test_register *) data);
             break;
         case TEST_MQTTSN_REGACK:
             this->receiver->receive_regack((test_regack *) data);
+            break;
+        case TEST_MQTTSN_SUBSCRIBE:
+            this->receiver->receive_subscribe((test_subscribe *) data);
+            break;
+        case TEST_MQTTSN_SUBACK:
+            this->receiver->receive_suback((test_suback *) data);
             break;
             /*
            case TEST_MQTTSN_PUBCOMP:
@@ -237,7 +257,6 @@ void LinuxUdpClientFake::receive(uint8_t *data, uint16_t length) {
            case TEST_MQTTSN_PINGRESP:
                this->receiver->receive_pingresp(header);
                break;
-
            case TEST_MQTTSN_WILLTOPICUPD:
                //this->receiver->receive_willtopicudp((msg_willtopicudp *) data);
                // TODO
@@ -256,7 +275,7 @@ void LinuxUdpClientFake::receive(uint8_t *data, uint16_t length) {
                break;
                 */
         default:
-            this->receiver->receive_any_message((uint16_t )header->length,header->type,data);
+            this->receiver->receive_any_message((uint16_t) header->length, header->type, data);
             break;
     }
 }
@@ -287,4 +306,6 @@ void LinuxUdpClientFake::set_gw_address(device_address *address) {
 void LinuxUdpClientFake::setMqttSnReceiver(MqttSnReceiverInterface *receiverInterface) {
     this->receiver = receiverInterface;
 }
+
+
 

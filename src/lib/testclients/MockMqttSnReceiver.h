@@ -33,6 +33,10 @@ public:
                  void(test_register *pRegister));
     MOCK_METHOD1(receive_regack,
                  void(test_regack *pRegack));
+    MOCK_METHOD1(receive_subscribe,
+                 void(test_subscribe *pSubscribe));
+    MOCK_METHOD1(receive_suback,
+                 void(test_suback *pSuback));
     MOCK_METHOD3(receive_any_message,
                  void(uint16_t length, message_type_test type, uint8_t* data));
 

@@ -41,6 +41,11 @@ public:
     virtual void receiver_register(test_register *pRegister)=0;
 
     virtual void receive_regack(test_regack *pRegack)=0;
+
+    virtual void receive_subscribe(test_subscribe *pSubscribe)=0;
+
+    virtual void receive_suback(test_suback *pSuback)=0;
+
     /*
       virtual void receive_publish(msg_publish *pPublish)=0;
 
@@ -51,10 +56,6 @@ public:
       virtual void receive_pubrec(msg_pubrec *pPubrec)=0;
 
       virtual void receive_pubrel(msg_pubrel *pPubrel)=0;
-
-      virtual void receive_subscribe(msg_subscribe *pSubscribe)=0;
-
-      virtual void receive_suback(msg_suback *pSuback)=0;
 
       virtual void receive_unsubscribe(msg_unsubscribe *pUnsubscribe)=0;
 

@@ -22,6 +22,8 @@
 #define FLAG_TOPIC_NAME 0x00
 #define FLAG_TOPIC_PREDEFINED_ID 0x01
 #define FLAG_TOPIC_SHORT_NAME 0x02
+#define FLAG_TOPIC_RESERVED 0x03
+
 
 enum return_code_test : uint8_t {
     TEST_ACCEPTED = 0x00,
@@ -58,6 +60,13 @@ enum message_type_test : uint8_t {
     TEST_MQTTSN_WILLTOPICRESP,
     TEST_MQTTSN_WILLMSGUPD,
     TEST_MQTTSN_WILLMSGRESP
+};
+
+enum topic_id_type_test : uint8_t {
+    TEST_TOPIC_NAME = 0b00,
+    TEST_PREDEFINED_TOPIC_ID = 0b01,
+    TEST_SHORT_TOPIC_NAME = 0b10,
+    TEST_RESERVED = 0b11,
 };
 
 struct test_header {
@@ -156,7 +165,7 @@ struct test_willtopic {
             this->flags |= FLAG_QOS_2;
         }
 
-        memcpy(this->will_topic, willtopic,willtopic_length);
+        memcpy(this->will_topic, willtopic, willtopic_length);
 
     }
 };
@@ -183,9 +192,10 @@ struct test_willmsg {
 };
 
 #pragma pack(push, 1)
+
 struct test_publish {
     uint8_t length;
-    message_type_test type;
+    message_type_test type = TEST_MQTTSN_PUBLISH;
     uint8_t flags;
     uint16_t topic_id;
     uint16_t message_id;
@@ -225,9 +235,11 @@ struct test_publish {
         memcpy(this->data, payload, payload_len);
     }
 };
+
 #pragma pack(pop)
 
 #pragma pack(push, 1)
+
 struct test_puback {
     uint8_t length = 7;
     message_type_test type = TEST_MQTTSN_PUBACK;
@@ -237,13 +249,16 @@ struct test_puback {
 
     test_puback(uint16_t topic_id, uint16_t msg_id, return_code_test return_code)
             : topic_id(topic_id), msg_id(msg_id), return_code(return_code) {
+        memset(this, 0, sizeof(test_puback));
         length = 7;
         type = TEST_MQTTSN_PUBACK;
     }
 };
+
 #pragma pack(pop)
 
 #pragma pack(push, 1)
+
 struct test_register {
     uint8_t length = 6;
     message_type_test type = TEST_MQTTSN_REGISTER;
@@ -252,9 +267,9 @@ struct test_register {
     uint8_t topic_name[UINT16_MAX + UINT8_MAX];
 
 
-    test_register(uint16_t topic_id, uint16_t msg_id, const char* topic_name) :
+    test_register(uint16_t topic_id, uint16_t msg_id, const char *topic_name) :
             topic_id(topic_id), msg_id(msg_id) {
-       memset(this, 0, sizeof(test_register));
+        memset(this, 0, sizeof(test_register));
         uint8_t topic_name_length = (uint8_t) strlen(topic_name);
         if (topic_name_length > UINT16_MAX) {
             throw new std::invalid_argument("topic name longer than UINT16_MAX");
@@ -273,9 +288,11 @@ struct test_register {
         memcpy(this->topic_name, topic_name, topic_name_length);
     }
 };
+
 #pragma pack(pop)
 
 #pragma pack(push, 1)
+
 struct test_regack {
     uint8_t length = 7;
     message_type_test type = TEST_MQTTSN_REGACK;
@@ -285,11 +302,117 @@ struct test_regack {
 
     test_regack(uint16_t topic_id, uint16_t msg_id, return_code_test return_code) :
             topic_id(topic_id), msg_id(msg_id), return_code(return_code) {
+        memset(this, 0, sizeof(test_regack));
+        this->length = 7;
+        this->type = TEST_MQTTSN_REGACK;
         this->topic_id = topic_id;
         this->msg_id = msg_id;
         this->return_code = return_code;
     }
 };
+
+#pragma pack(pop)
+
+#pragma pack(push, 1)
+
+struct test_subscribe {
+    uint8_t length = 5;
+    message_type_test type = TEST_MQTTSN_SUBSCRIBE;
+    uint8_t flags;
+    uint16_t msg_id;
+    uint8_t topic_name[UINT16_MAX + UINT8_MAX];
+
+    test_subscribe(bool dup, int8_t qos, bool retain, topic_id_type_test topic_id_type,
+                   uint16_t msg_id, const char *topic_name, uint16_t topic_id) {
+        memset(this, 0, sizeof(test_publish));
+
+        uint16_t to_copy_length = 0;
+        if (topic_id_type == TEST_TOPIC_NAME) {
+            uint16_t topic_name_length = (uint8_t) strlen(topic_name);
+            if (topic_name_length > UINT16_MAX) {
+                throw new std::invalid_argument("topic_name longer than UINT16_MAX");
+            }
+            to_copy_length = topic_name_length;
+            this->length = (uint8_t) (5 + 1 + to_copy_length);
+        } else if (topic_id_type == TEST_PREDEFINED_TOPIC_ID || topic_id_type == TEST_SHORT_TOPIC_NAME) {
+            to_copy_length = 2;
+            this->length = (uint8_t) (5 + 0 + to_copy_length);
+        }
+
+        this->type = TEST_MQTTSN_SUBSCRIBE;
+        this->flags = 0x0;
+
+        if (dup) {
+            this->flags |= FLAG_DUP;
+        }
+        if (retain) {
+            this->flags |= FLAG_RETAIN;
+        }
+
+        if (topic_id_type == TEST_TOPIC_NAME) {
+            this->flags |= FLAG_TOPIC_NAME;
+        } else if (topic_id_type == TEST_PREDEFINED_TOPIC_ID) {
+            this->flags |= FLAG_TOPIC_PREDEFINED_ID;
+        } else if (topic_id_type == TEST_SHORT_TOPIC_NAME) {
+            this->flags |= FLAG_TOPIC_SHORT_NAME;
+        } else {
+            this->flags |= FLAG_TOPIC_RESERVED;
+        }
+
+        if (qos == 0) {
+            this->flags |= FLAG_QOS_0;
+        } else if (qos == 1) {
+            this->flags |= FLAG_QOS_1;
+        } else if (qos == 2) {
+            this->flags |= FLAG_QOS_2;
+        } else if (qos == -1) {
+            this->flags |= FLAG_QOS_M1;
+        }
+
+        this->msg_id = msg_id;
+        if (topic_id_type == TEST_TOPIC_NAME) {
+            memcpy(this->topic_name, topic_name, to_copy_length);
+        } else if (topic_id_type == TEST_PREDEFINED_TOPIC_ID || topic_id_type == TEST_SHORT_TOPIC_NAME) {
+            memcpy(this->topic_name, &topic_id, to_copy_length);
+        }
+    }
+};
+
+#pragma pack(pop)
+
+#pragma pack(push, 1)
+
+struct test_suback {
+    uint8_t length = 8;
+    message_type_test type = TEST_MQTTSN_SUBACK;
+    uint8_t flags;
+    uint16_t topic_id;
+    uint16_t msg_id;
+    return_code_test return_code;
+
+    test_suback(int8_t qos, uint16_t topic_id, uint16_t msg_id, return_code_test return_code) :
+            topic_id(topic_id), msg_id(msg_id), return_code(return_code) {
+        memset(this, 0, sizeof(test_suback));
+
+        this->length = 8;
+        this->type = TEST_MQTTSN_SUBACK;
+
+        if (qos == 0) {
+            this->flags |= FLAG_QOS_0;
+        } else if (qos == 1) {
+            this->flags |= FLAG_QOS_1;
+        } else if (qos == 2) {
+            this->flags |= FLAG_QOS_2;
+        } else if (qos == -1) {
+            this->flags |= FLAG_QOS_M1;
+        }
+
+        this->topic_id = topic_id;
+        this->msg_id = msg_id;
+        this->return_code = return_code;
+    }
+};
+
 #pragma pack(pop)
 
 #endif //TEST_MQTT_SN_GATEWAY_TEST_MQTTSN_TEST_MESSAGES_H
