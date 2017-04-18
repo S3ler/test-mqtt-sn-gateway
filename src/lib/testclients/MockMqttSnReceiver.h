@@ -29,8 +29,13 @@ public:
                  void(test_publish *pPublish));
     MOCK_METHOD1(receive_puback,
                  void(test_puback *pPuback));
+    MOCK_METHOD1(receiver_register,
+                 void(test_register *pRegister));
+    MOCK_METHOD1(receive_regack,
+                 void(test_regack *pRegack));
     MOCK_METHOD3(receive_any_message,
                  void(uint16_t length, message_type_test type, uint8_t* data));
+
 };
 
 

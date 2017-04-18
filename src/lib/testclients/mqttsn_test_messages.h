@@ -71,14 +71,14 @@ struct test_connect {
     uint8_t flags;
     uint8_t protocol_id;
     uint16_t duration;
-    char client_id[UINT16_MAX + UINT8_MAX];
+    uint8_t client_id[UINT16_MAX + UINT8_MAX];
 
     test_connect(bool will, bool clean_session, uint8_t protocol_id, uint16_t duration, const char *client_id) {
         memset(this, 0, sizeof(test_connect));
 
         uint8_t client_id_length = (uint8_t) strlen(client_id);
         if (client_id_length > UINT16_MAX) {
-            throw new std::invalid_argument("client id longer then UINT16_MAX");
+            throw new std::invalid_argument("client id longer than UINT16_MAX");
         }
         if (client_id_length == 0) {
             length = ((uint8_t) (6 + 0));
@@ -95,7 +95,7 @@ struct test_connect {
         }
         this->protocol_id = protocol_id;
         this->duration = duration;
-        strcpy(this->client_id, client_id);
+        memcpy(this->client_id, client_id, client_id_length);
     }
 
 };
@@ -127,14 +127,14 @@ struct test_willtopic {
     uint8_t length;
     message_type_test type;
     uint8_t flags;
-    char will_topic[UINT16_MAX + UINT8_MAX];
+    uint8_t will_topic[UINT16_MAX + UINT8_MAX];
 
     test_willtopic(char *willtopic, int8_t qos, bool retain) {
         memset(this, 0, sizeof(test_willtopic));
 
         uint8_t willtopic_length = (uint8_t) strlen(willtopic);
         if (willtopic_length > UINT16_MAX) {
-            throw new std::invalid_argument("willtopic longer then UINT16_MAX");
+            throw new std::invalid_argument("willtopic longer than UINT16_MAX");
         }
         this->length = 0;
         if (willtopic_length == 0) {
@@ -156,7 +156,7 @@ struct test_willtopic {
             this->flags |= FLAG_QOS_2;
         }
 
-        strcpy(this->will_topic, willtopic);
+        memcpy(this->will_topic, willtopic,willtopic_length);
 
     }
 };
@@ -174,7 +174,7 @@ struct test_willmsg {
     test_willmsg(const uint8_t *willmsg, uint16_t willmsg_len) {
         memset(this, 0, sizeof(test_willmsg));
         if (willmsg_len > UINT16_MAX) {
-            throw new std::invalid_argument("willmsg longer then UINT16_MAX");
+            throw new std::invalid_argument("willmsg longer than UINT16_MAX");
         }
         this->type = TEST_MQTTSN_WILLMSG;
         this->length = (uint8_t) (2 + willmsg_len);
@@ -183,7 +183,6 @@ struct test_willmsg {
 };
 
 #pragma pack(push, 1)
-
 struct test_publish {
     uint8_t length;
     message_type_test type;
@@ -196,7 +195,7 @@ struct test_publish {
                  const uint8_t *payload, uint8_t payload_len) : topic_id(topic_id), message_id(msg_id) {
         memset(this, 0, sizeof(test_publish));
         if (payload_len > UINT16_MAX) {
-            throw new std::invalid_argument("payload longer then UINT16_MAX");
+            throw new std::invalid_argument("payload longer than UINT16_MAX");
         }
         this->length = ((uint8_t) 7) + payload_len;
         this->type = TEST_MQTTSN_PUBLISH;
@@ -226,10 +225,9 @@ struct test_publish {
         memcpy(this->data, payload, payload_len);
     }
 };
-
 #pragma pack(pop)
-#pragma pack(push, 1)
 
+#pragma pack(push, 1)
 struct test_puback {
     uint8_t length = 7;
     message_type_test type = TEST_MQTTSN_PUBACK;
@@ -241,6 +239,55 @@ struct test_puback {
             : topic_id(topic_id), msg_id(msg_id), return_code(return_code) {
         length = 7;
         type = TEST_MQTTSN_PUBACK;
+    }
+};
+#pragma pack(pop)
+
+#pragma pack(push, 1)
+struct test_register {
+    uint8_t length;
+    message_type_test type = TEST_MQTTSN_REGISTER;
+    uint16_t topic_id;
+    uint16_t msg_id;
+    uint8_t topic_name[UINT16_MAX + UINT8_MAX];
+
+
+    test_register(uint16_t topic_id, uint16_t msg_id, const char* topic_name) :
+            topic_id(topic_id), msg_id(msg_id) {
+       memset(this, 0, sizeof(test_register));
+        uint8_t topic_name_length = (uint8_t) strlen(topic_name);
+        if (topic_name_length > UINT16_MAX) {
+            throw new std::invalid_argument("topic name longer than UINT16_MAX");
+        }
+        this->length = 0;
+        if (topic_name_length == 0) {
+            length = (uint8_t) (6 + 0);
+        } else {
+            length = (uint8_t) (6 + 1) + topic_name_length;
+        }
+
+        type = TEST_MQTTSN_REGISTER;
+
+        this->topic_id = topic_id;
+        this->msg_id = msg_id;
+        memcpy(this->topic_name, topic_name, topic_name_length);
+    }
+};
+#pragma pack(pop)
+
+#pragma pack(push, 1)
+struct test_regack {
+    uint8_t length = 7;
+    message_type_test type = TEST_MQTTSN_REGACK;
+    uint16_t topic_id;
+    uint16_t msg_id;
+    return_code_test return_code;
+
+    test_regack(uint16_t topic_id, uint16_t msg_id, return_code_test return_code) :
+            topic_id(topic_id), msg_id(msg_id), return_code(return_code) {
+        this->topic_id = topic_id;
+        this->msg_id = msg_id;
+        this->return_code = return_code;
     }
 };
 #pragma pack(pop)

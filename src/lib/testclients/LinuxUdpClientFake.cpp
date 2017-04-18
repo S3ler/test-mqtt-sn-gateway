@@ -63,6 +63,22 @@ void LinuxUdpClientFake::send_publish(bool dup, int8_t qos, bool retain, bool sh
 
 }
 
+void LinuxUdpClientFake::send_register(uint16_t topic_id, uint16_t msg_id, const char *topic_name) {
+    if (this->gw_address == nullptr) {
+        throw new std::invalid_argument("gateway address not set");
+    }
+    if (s == -1) {
+        connect(this->gw_address);
+    }
+
+    test_register msg(topic_id, msg_id, topic_name);
+
+    if (sendto(s, (const void *) &msg, msg.length, 0, (struct sockaddr *) &si_other, slen) == -1) {
+        std::cout << "sendto()Register" << std::endl;
+    }
+}
+
+
 
 void LinuxUdpClientFake::connect(device_address *address) {
 
@@ -153,8 +169,6 @@ void LinuxUdpClientFake::receive(uint8_t *data, uint16_t length) {
         throw new std::invalid_argument("gateway address not set");
     }
     test_header *header = (test_header *) data;
-    test_puback* msg = (test_puback*) data;
-
     switch (header->type) {
         /*
         case TEST_MQTTSN_ADVERTISE:
@@ -189,59 +203,58 @@ void LinuxUdpClientFake::receive(uint8_t *data, uint16_t length) {
         case TEST_MQTTSN_PUBACK:
             this->receiver->receive_puback((test_puback*) data);
             break;
-            /*
         case TEST_MQTTSN_REGISTER:
-            this->receiver->receiver_register((msg_register *) data);
+            this->receiver->receiver_register((test_register *) data);
             break;
         case TEST_MQTTSN_REGACK:
-            this->receiver->receive_regack((msg_regack *) data);
+            this->receiver->receive_regack((test_regack *) data);
             break;
+            /*
+           case TEST_MQTTSN_PUBCOMP:
+               this->receiver->receive_pubcomp((msg_pubcomp *) data);
+               break;
+           case TEST_MQTTSN_PUBREC:
+               this->receiver->receive_pubrec((msg_pubrec *) data);
+               break;
+           case TEST_MQTTSN_PUBREL:
+               this->receiver->receive_pubrel((msg_pubrel *) data);
+               break;
+           case TEST_MQTTSN_SUBSCRIBE:
+               this->receiver->receive_subscribe((msg_subscribe *) data);
+               break;
+           case TEST_MQTTSN_SUBACK:
+               this->receiver->receive_suback((msg_suback *) data);
+               break;
+           case TEST_MQTTSN_UNSUBSCRIBE:
+               this->receiver->receive_unsubscribe((msg_unsubscribe *) data);
+               break;
+           case TEST_MQTTSN_UNSUBACK:
+               this->receiver->receive_unsuback((msg_unsuback *) data);
+               break;
+           case TEST_MQTTSN_PINGREQ:
+               this->receiver->receive_pingreq(header);
+               break;
+           case TEST_MQTTSN_PINGRESP:
+               this->receiver->receive_pingresp(header);
+               break;
 
-        case TEST_MQTTSN_PUBCOMP:
-            this->receiver->receive_pubcomp((msg_pubcomp *) data);
-            break;
-        case TEST_MQTTSN_PUBREC:
-            this->receiver->receive_pubrec((msg_pubrec *) data);
-            break;
-        case TEST_MQTTSN_PUBREL:
-            this->receiver->receive_pubrel((msg_pubrel *) data);
-            break;
-        case TEST_MQTTSN_SUBSCRIBE:
-            this->receiver->receive_subscribe((msg_subscribe *) data);
-            break;
-        case TEST_MQTTSN_SUBACK:
-            this->receiver->receive_suback((msg_suback *) data);
-            break;
-        case TEST_MQTTSN_UNSUBSCRIBE:
-            this->receiver->receive_unsubscribe((msg_unsubscribe *) data);
-            break;
-        case TEST_MQTTSN_UNSUBACK:
-            this->receiver->receive_unsuback((msg_unsuback *) data);
-            break;
-        case TEST_MQTTSN_PINGREQ:
-            this->receiver->receive_pingreq(header);
-            break;
-        case TEST_MQTTSN_PINGRESP:
-            this->receiver->receive_pingresp(header);
-            break;
-
-        case TEST_MQTTSN_WILLTOPICUPD:
-            //this->receiver->receive_willtopicudp((msg_willtopicudp *) data);
-            // TODO
-            throw new std::invalid_argument("not implemented yet");
-            break;
-        case TEST_MQTTSN_WILLTOPICRESP:
-            this->receiver->receive_willtopicresp((msg_willtopicresp *) data);
-            break;
-        case TEST_MQTTSN_WILLMSGUPD:
-            //this->receiver->receive_willmsgudp((msg_willmsgupd*) data);
-            // TODO
-            throw new std::invalid_argument("not implemented yet");
-            break;
-        case TEST_MQTTSN_WILLMSGRESP:
-            this->receiver->receive_willmsgresp((msg_willmsgresp *) data);
-            break;
-             */
+           case TEST_MQTTSN_WILLTOPICUPD:
+               //this->receiver->receive_willtopicudp((msg_willtopicudp *) data);
+               // TODO
+               throw new std::invalid_argument("not implemented yet");
+               break;
+           case TEST_MQTTSN_WILLTOPICRESP:
+               this->receiver->receive_willtopicresp((msg_willtopicresp *) data);
+               break;
+           case TEST_MQTTSN_WILLMSGUPD:
+               //this->receiver->receive_willmsgudp((msg_willmsgupd*) data);
+               // TODO
+               throw new std::invalid_argument("not implemented yet");
+               break;
+           case TEST_MQTTSN_WILLMSGRESP:
+               this->receiver->receive_willmsgresp((msg_willmsgresp *) data);
+               break;
+                */
         default:
             this->receiver->receive_any_message((uint16_t )header->length,header->type,data);
             break;
@@ -274,3 +287,4 @@ void LinuxUdpClientFake::set_gw_address(device_address *address) {
 void LinuxUdpClientFake::setMqttSnReceiver(MqttSnReceiverInterface *receiverInterface) {
     this->receiver = receiverInterface;
 }
+

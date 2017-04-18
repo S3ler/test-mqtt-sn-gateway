@@ -100,6 +100,7 @@ public:
         predefined_topics.push_back(std::string("50 /unsubscribed/client/topic/name"));
         predefined_topics.push_back(std::string("20 /another/predefined/topic"));
         receiver_topics.push_back(std::string("/unsubscribed/client/topic/name"));
+        receiver_topics.push_back(std::string("/register/by/client/topic/name"));
 
         create_configuration_files();
 
@@ -136,6 +137,7 @@ public:
         mqtt_client.stop_loop();
         gateway.stop_loop();
     }
+
 public:
     LinuxUdpGateway_Register_Check() : Test() {
 
@@ -146,3 +148,97 @@ public:
     }
 
 };
+
+ACTION_P(check_connack, expected) {
+    ASSERT_EQ(expected.length, arg0->length);
+    ASSERT_EQ(expected.type, arg0->type);
+    ASSERT_EQ(expected.return_code, arg0->return_code);
+}
+
+ACTION_P(check_regack, expected) {
+    ASSERT_EQ(expected.length, arg0->length);
+    ASSERT_EQ(expected.type, arg0->type);
+    ASSERT_EQ(expected.msg_id, arg0->msg_id);
+    ASSERT_EQ(expected.topic_id, arg0->topic_id);
+    ASSERT_EQ(expected.return_code, arg0->return_code);
+}
+
+// topic id
+TEST_F(LinuxUdpGateway_Register_Check, RegisterTopicName_topicIdZero_return_regackaccepted) {
+
+    const char *topic = "/register/by/client/topic/name";
+
+    test_connack expected_connack(TEST_ACCEPTED);
+    EXPECT_CALL(mqtt_sn_receiver, receive_connack(_)).WillOnce(check_connack(expected_connack));
+    mqtt_sn_sender.send_connect("Mqtt SN Testclient", UINT16_MAX, false, false);
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+    uint16_t msg_id = 5;
+    uint16_t topic_id = 1;
+    test_regack expected_regack(topic_id, msg_id, TEST_ACCEPTED);
+    EXPECT_CALL(mqtt_sn_receiver, receive_regack(_)).WillOnce(check_regack(expected_regack));
+
+    mqtt_sn_sender.send_register((uint16_t) 0, msg_id, topic);
+
+    // wait until all message are exchanged
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+    std::cout << std::endl;
+}
+
+TEST_F(LinuxUdpGateway_Register_Check, RegisterTopicName_topicIdOne_return_disconnect) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+
+    ASSERT_TRUE(false);
+}
+
+TEST_F(LinuxUdpGateway_Register_Check, RegisterTopicName_topicIdMaxValue_return_disconnect) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+    ASSERT_TRUE(false);
+}
+
+// msg id
+TEST_F(LinuxUdpGateway_Register_Check, RegisterTopicName_msgIdMin_return_regackaccepted) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+    ASSERT_TRUE(false);
+}
+
+TEST_F(LinuxUdpGateway_Register_Check, RegisterTopicName_msgIdOne_return_regackaccepted) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+    ASSERT_TRUE(false);
+}
+
+TEST_F(LinuxUdpGateway_Register_Check, RegisterTopicName_msgIdMaxValue_return_regackaccepted) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+    ASSERT_TRUE(false);
+}
+
+// topic name
+TEST_F(LinuxUdpGateway_Register_Check, RegisterTopicName_topicNameMin_return_regackaccepted) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+    ASSERT_TRUE(false);
+}
+
+TEST_F(LinuxUdpGateway_Register_Check, RegisterTopicName_topicNameMax_return_regackaccepted) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+    ASSERT_TRUE(false);
+}
+
+TEST_F(LinuxUdpGateway_Register_Check, RegisterTopicName_topicNameTooShort_return_regackaccepted) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+    ASSERT_TRUE(false);
+}
+
+TEST_F(LinuxUdpGateway_Register_Check, RegisterTopicName_topicNameTooLong_return_regackaccepted) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+    ASSERT_TRUE(false);
+}

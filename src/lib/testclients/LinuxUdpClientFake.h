@@ -39,6 +39,8 @@ public:
     void send_publish(bool dup, int8_t qos, bool retain, bool short_topic, uint16_t topic_id,
                       uint16_t msg_id, const uint8_t *data, uint8_t data_length);
 
+    void send_register(uint16_t topic_id, uint16_t msg_id, const char *topic_name);
+
 private:
     void connect(device_address *address);
 
