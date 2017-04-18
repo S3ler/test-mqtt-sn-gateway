@@ -175,10 +175,6 @@ public:
 };
 
 
-
-
-
-// topic id
 TEST_F(LinuxUdpGateway_Register_Check, RegisterTopicName_topicIdZero_return_regackaccepted) {
     const char *topic = "/register/by/client/topic/name";
 
@@ -229,7 +225,6 @@ TEST_F(LinuxUdpGateway_Register_Check, RegisterTopicName_topicIdMaxValue_return_
     std::cout << std::endl;
 }
 
-// msg id
 TEST_F(LinuxUdpGateway_Register_Check, RegisterTopicName_msgIdMin_return_regackaccepted) {
     const char *topic = "/register/by/client/topic/name";
 
@@ -284,7 +279,6 @@ TEST_F(LinuxUdpGateway_Register_Check, RegisterTopicName_msgIdMaxValue_return_re
     std::cout << std::endl;
 }
 
-// topic name
 TEST_F(LinuxUdpGateway_Register_Check, RegisterTopicName_topicNameMin_return_regackaccepted) {
     const char *topic = "M";
 
