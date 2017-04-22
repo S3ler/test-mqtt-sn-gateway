@@ -204,9 +204,6 @@ public:
     }
 
 };
-// at the moment all subscribtions are done to qos 1 and the byte are only tested with qos 0 and to predefined topics
-// all subscriptions are done only once
-
 
 TEST_F(LinuxUdpGateway_Subscribe_Check, Subscribe_ByMinTopicId_predefined_returnSuback) {
 
@@ -354,7 +351,6 @@ TEST_F(LinuxUdpGateway_Subscribe_Check, Subscribe_ByTopicId_predefined_returnSub
     std::cout << std::endl;
 }
 
-
 TEST_F(LinuxUdpGateway_Subscribe_Check, Subscribe_ByTopicId_predefined_withRetainFlag_returnDisconnect) {
 
     test_disconnect expected_disconnect;
@@ -427,6 +423,30 @@ TEST_F(LinuxUdpGateway_Subscribe_Check, Subscribe_ByTopicId_predefined_withClean
     std::cout << std::endl;
 }
 
+TEST_F(LinuxUdpGateway_Subscribe_Check, Subscribe_ByTopicId_predefined_withReserved_returnDisconnect) {
+
+    test_disconnect expected_disconnect;
+    EXPECT_CALL(mqtt_sn_receiver, receive_disconnect(_)).WillOnce(check_disconnect(expected_disconnect));
+
+    bool dup = false;
+    uint8_t qos = 0;
+
+    bool retain = false;
+    bool will = false;
+    bool clean_session = true;
+
+    uint16_t msg_id = 5;
+    const char *empty_topic = "";
+    uint16_t topic_id = 20;
+
+    mqtt_sn_sender.send_subscribe(dup, qos, retain, will, clean_session, TEST_RESERVED, msg_id, empty_topic, topic_id);
+
+    // wait until all message are exchanged
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+    std::cout << std::endl;
+}
+
 TEST_F(LinuxUdpGateway_Subscribe_Check, Subscribe_ByTopicId_predefined_withRetainWillFlag_returnDisconnect) {
 
     test_disconnect expected_disconnect;
@@ -475,6 +495,30 @@ TEST_F(LinuxUdpGateway_Subscribe_Check, Subscribe_ByTopicId_predefined_withRetai
     std::cout << std::endl;
 }
 
+TEST_F(LinuxUdpGateway_Subscribe_Check, Subscribe_ByTopicId_predefined_withRetainCleanSessionReservedFlag_returnDisconnect) {
+
+    test_disconnect expected_disconnect;
+    EXPECT_CALL(mqtt_sn_receiver, receive_disconnect(_)).WillOnce(check_disconnect(expected_disconnect));
+
+    bool dup = false;
+    uint8_t qos = 0;
+
+    bool retain = true;
+    bool will = false;
+    bool clean_session = true;
+
+    uint16_t msg_id = 5;
+    const char *empty_topic = "";
+    uint16_t topic_id = 20;
+
+    mqtt_sn_sender.send_subscribe(dup, qos, retain, will, clean_session, TEST_RESERVED, msg_id, empty_topic, topic_id);
+
+    // wait until all message are exchanged
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+    std::cout << std::endl;
+}
+
 TEST_F(LinuxUdpGateway_Subscribe_Check, Subscribe_ByTopicId_predefined_withWillCleanSessionFlag_returnDisconnect) {
 
     test_disconnect expected_disconnect;
@@ -516,6 +560,30 @@ TEST_F(LinuxUdpGateway_Subscribe_Check, Subscribe_ByTopicId_predefined_withRetai
     uint16_t topic_id = 20;
 
     mqtt_sn_sender.send_subscribe(dup, qos, retain, will, clean_session, TEST_PREDEFINED_TOPIC_ID, msg_id, empty_topic, topic_id);
+
+    // wait until all message are exchanged
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+    std::cout << std::endl;
+}
+
+TEST_F(LinuxUdpGateway_Subscribe_Check, Subscribe_ByTopicId_predefined_withRetainWillCleanSessionReservedFlag_returnDisconnect) {
+
+    test_disconnect expected_disconnect;
+    EXPECT_CALL(mqtt_sn_receiver, receive_disconnect(_)).WillOnce(check_disconnect(expected_disconnect));
+
+    bool dup = false;
+    uint8_t qos = 0;
+
+    bool retain = true;
+    bool will = true;
+    bool clean_session = true;
+
+    uint16_t msg_id = 5;
+    const char *empty_topic = "";
+    uint16_t topic_id = 20;
+
+    mqtt_sn_sender.send_subscribe(dup, qos, retain, will, clean_session, TEST_RESERVED, msg_id, empty_topic, topic_id);
 
     // wait until all message are exchanged
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
