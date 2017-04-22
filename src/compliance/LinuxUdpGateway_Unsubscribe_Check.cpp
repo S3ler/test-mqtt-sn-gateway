@@ -38,12 +38,18 @@ ACTION_P(check_regack, expected) {
     ASSERT_EQ(expected.return_code, arg0->return_code);
 }
 
+ACTION_P(check_unsuback, expected) {
+    ASSERT_EQ(expected.length, arg0->length);
+    ASSERT_EQ(expected.type, arg0->type);
+    ASSERT_EQ(expected.msg_id, arg0->msg_id);
+}
+
 ACTION_P(check_disconnect, expected) {
     ASSERT_EQ(expected.length, arg0->length);
     ASSERT_EQ(expected.type, arg0->type);
 }
 
-class LinuxUdpGateway_Register_Check : public ::testing::Test {
+class LinuxUdpGateway_Unsubscribe_Check : public ::testing::Test {
 public:
     LinuxGateway gateway;
     MqttReceiverMock mqtt_receiver;
@@ -84,6 +90,9 @@ public:
         mqtt_con << "gatewayid 1" << std::endl;
         mqtt_con.close();
 
+    }
+
+    void create_predefined_topic() const {
         std::ofstream topics_pre(_rootPath + "/TOPICS.PRE");
         for (auto &&predefinedTopic : predefined_topics) {
             topics_pre << predefinedTopic << std::endl;
@@ -122,6 +131,7 @@ public:
         receiver_topics.push_back(std::string("/register/by/client/topic/name"));
 
         create_configuration_files();
+        create_predefined_topic();
 
         gateway.setRootPath((char *) _rootPath.c_str());
         mqtt_client.setReceiver(&mqtt_receiver);
@@ -155,6 +165,20 @@ public:
         EXPECT_CALL(mqtt_sn_receiver, receive_connack(_)).WillOnce(check_connack(expected_connack));
         mqtt_sn_sender.send_connect("Mqtt SN Testclient", UINT16_MAX, false, false);
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+        const char *topic = "/register/by/client/topic/name";
+
+        uint16_t expected_msg_id = 5;
+        uint16_t expected_topic_id = 1;
+        test_regack expected_regack(expected_topic_id, expected_msg_id, TEST_ACCEPTED);
+        EXPECT_CALL(mqtt_sn_receiver, receive_regack(_)).WillOnce(check_regack(expected_regack));
+
+        uint16_t msg_id = 5;
+        uint16_t topic_id = 0;
+        mqtt_sn_sender.send_register(topic_id, msg_id, topic);
+
+        // wait until all message are exchanged
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
 
     void stopAllLoops() {
@@ -164,28 +188,20 @@ public:
     }
 
 public:
-    LinuxUdpGateway_Register_Check() : Test() {
+    LinuxUdpGateway_Unsubscribe_Check() : Test() {
 
     }
 
-    virtual ~LinuxUdpGateway_Register_Check() {
+    virtual ~LinuxUdpGateway_Unsubscribe_Check() {
 
     }
 
 };
+/*
+TEST_F(LinuxUdpGateway_Unsubscribe_Check, Unsubscribe_TODO) {
+    //TODO implement double topic id and double topic name in prefined
 
-
-TEST_F(LinuxUdpGateway_Register_Check, RegisterTopicName_topicIdZero_return_regackaccepted) {
-    const char *topic = "/register/by/client/topic/name";
-
-    uint16_t expected_msg_id = 5;
-    uint16_t expected_topic_id = 1;
-    test_regack expected_regack(expected_topic_id, expected_msg_id, TEST_ACCEPTED);
-    EXPECT_CALL(mqtt_sn_receiver, receive_regack(_)).WillOnce(check_regack(expected_regack));
-
-    uint16_t msg_id = 5;
-    uint16_t topic_id = 0;
-    mqtt_sn_sender.send_register(topic_id, msg_id, topic);
+    ASSERT_TRUE(false);
 
     // wait until all message are exchanged
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
@@ -193,103 +209,84 @@ TEST_F(LinuxUdpGateway_Register_Check, RegisterTopicName_topicIdZero_return_rega
     std::cout << std::endl;
 }
 
-TEST_F(LinuxUdpGateway_Register_Check, RegisterTopicName_topicIdOne_return_disconnect) {
-    const char *topic = "/register/by/client/topic/name";
+TEST_F(LinuxUdpGateway_Unsubscribe_Check, Unsubscribe_predefinedTopicId_returnSuback) {
+    std::remove((_rootPath + "/TOPICS.PRE").c_str());
+    predefined_topics.push_back(std::string("100 /unsubscribed/client/topic/name"));
 
-    test_disconnect expected_disconnect;
-    EXPECT_CALL(mqtt_sn_receiver, receive_disconnect(_)).WillOnce(check_disconnect(expected_disconnect));
+    ASSERT_TRUE(false);
+
+    // wait until all message are exchanged
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+    std::cout << std::endl;
+}
+
+TEST_F(LinuxUdpGateway_Unsubscribe_Check, Unsubscribe_predefinedMinTopicId_returnSuback) {
+    std::remove((_rootPath + "/TOPICS.PRE").c_str());
+    predefined_topics.push_back(std::string("0 M"));
+    // put min predefined topic into file
+    ASSERT_TRUE(false);
+
+    // wait until all message are exchanged
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+    std::cout << std::endl;
+}
+
+TEST_F(LinuxUdpGateway_Unsubscribe_Check, Unsubscribe_predefinedMaxTopicId_returnSuback) {
+    std::remove((_rootPath + "/TOPICS.PRE").c_str());
+    predefined_topics.push_back(std::string("65535 /maximum/predefined/topic/id"));
+    // put max predefined topic into file
+    ASSERT_TRUE(false);
+
+    // wait until all message are exchanged
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+    std::cout << std::endl;
+}
+*/
+
+// TODO
+TEST_F(LinuxUdpGateway_Unsubscribe_Check, Unsubscribe_knownTopicId_returnSuback) {
+
+    uint16_t expected_msg_id = 5;
+    test_unsuback expected_unsuback(expected_msg_id);
+    EXPECT_CALL(mqtt_sn_receiver, receive_unsuback(_)).WillOnce(check_unsuback(expected_unsuback));
 
     uint16_t msg_id = 5;
+    const char *empty_topic = "";
     uint16_t topic_id = 1;
-    mqtt_sn_sender.send_register(topic_id, msg_id, topic);
+
+    mqtt_sn_sender.send_unsubscribe(TEST_SHORT_TOPIC_NAME, msg_id, empty_topic, topic_id);
 
     // wait until all message are exchanged
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
     std::cout << std::endl;
 }
-
-TEST_F(LinuxUdpGateway_Register_Check, RegisterTopicName_topicIdMaxValue_return_disconnect) {
-    const char *topic = "/register/by/client/topic/name";
-
-    test_disconnect expected_disconnect;
-    EXPECT_CALL(mqtt_sn_receiver, receive_disconnect(_)).WillOnce(check_disconnect(expected_disconnect));
-
-    uint16_t msg_id = 5;
-    uint16_t topic_id = UINT16_MAX;
-    mqtt_sn_sender.send_register(topic_id, msg_id, topic);
-
-    // wait until all message are exchanged
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-
-    std::cout << std::endl;
-}
-
-TEST_F(LinuxUdpGateway_Register_Check, RegisterTopicName_msgIdMin_return_regackaccepted) {
-    const char *topic = "/register/by/client/topic/name";
-
-    uint16_t expected_msg_id = 0;
-    uint16_t expected_topic_id = 1;
-    test_regack expected_regack(expected_topic_id, expected_msg_id, TEST_ACCEPTED);
-    EXPECT_CALL(mqtt_sn_receiver, receive_regack(_)).WillOnce(check_regack(expected_regack));
-
-    uint16_t msg_id = 0;
-    uint16_t topic_id = 0;
-    mqtt_sn_sender.send_register(topic_id, msg_id, topic);
-
-    // wait until all message are exchanged
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-
-    std::cout << std::endl;
-}
-
-TEST_F(LinuxUdpGateway_Register_Check, RegisterTopicName_msgIdOne_return_regackaccepted) {
-    const char *topic = "/register/by/client/topic/name";
-
-    uint16_t expected_msg_id = 1;
-    uint16_t expected_topic_id = 1;
-    test_regack expected_regack(expected_topic_id, expected_msg_id, TEST_ACCEPTED);
-    EXPECT_CALL(mqtt_sn_receiver, receive_regack(_)).WillOnce(check_regack(expected_regack));
-
-    uint16_t msg_id = 1;
-    uint16_t topic_id = 0;
-    mqtt_sn_sender.send_register(topic_id, msg_id, topic);
-
-    // wait until all message are exchanged
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-
-    std::cout << std::endl;
-}
-
-TEST_F(LinuxUdpGateway_Register_Check, RegisterTopicName_msgIdMaxValue_return_regackaccepted) {
-    const char *topic = "/register/by/client/topic/name";
-
-    uint16_t expected_msg_id = UINT16_MAX;
-    uint16_t expected_topic_id = 1;
-    test_regack expected_regack(expected_topic_id, expected_msg_id, TEST_ACCEPTED);
-    EXPECT_CALL(mqtt_sn_receiver, receive_regack(_)).WillOnce(check_regack(expected_regack));
-
-    uint16_t msg_id = UINT16_MAX;
-    uint16_t topic_id = 0;
-    mqtt_sn_sender.send_register(topic_id, msg_id, topic);
-
-    // wait until all message are exchanged
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-
-    std::cout << std::endl;
-}
-
-TEST_F(LinuxUdpGateway_Register_Check, RegisterTopicName_topicNameMin_return_regackaccepted) {
-    const char *topic = "M";
+/*
+TEST_F(LinuxUdpGateway_Unsubscribe_Check, Unsubscribe_knownTopicId_returnSuback) {
 
     uint16_t expected_msg_id = 5;
-    uint16_t expected_topic_id = 1;
-    test_regack expected_regack(expected_topic_id, expected_msg_id, TEST_ACCEPTED);
-    EXPECT_CALL(mqtt_sn_receiver, receive_regack(_)).WillOnce(check_regack(expected_regack));
+    test_unsuback expected_unsuback(expected_msg_id);
+    EXPECT_CALL(mqtt_sn_receiver, receive_unsuback(_)).WillOnce(check_unsuback(expected_unsuback));
 
     uint16_t msg_id = 5;
-    uint16_t topic_id = 0;
-    mqtt_sn_sender.send_register(topic_id, msg_id, topic);
+    const char *empty_topic = "";
+    uint16_t topic_id = 1;
+
+    mqtt_sn_sender.send_unsubscribe(TEST_SHORT_TOPIC_NAME, msg_id, empty_topic, topic_id);
+
+    // wait until all message are exchanged
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+    std::cout << std::endl;
+}
+*/
+/*
+TEST_F(LinuxUdpGateway_Unsubscribe_Check, Unsubscribe_AllCombinationsOfFlagsByte_returnDisconnect) {
+    //TODO
+    ASSERT_TRUE(false);
 
     // wait until all message are exchanged
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
@@ -297,18 +294,9 @@ TEST_F(LinuxUdpGateway_Register_Check, RegisterTopicName_topicNameMin_return_reg
     std::cout << std::endl;
 }
 
-TEST_F(LinuxUdpGateway_Register_Check, RegisterTopicName_topicNameMax_return_regackaccepted) {
-    // 248 characters + 1 byte null-terminator
-    const char *topic = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed quis massa mauris. Aenean consectetur urna in libero dignissim mattis. Nunc fermentum blandit consectetur. Nam pulvinar sapien in libero fringilla tincidunt. Orci varius natoque volutpat.";
+TEST_F(LinuxUdpGateway_Unsubscribe_Check, Unsubscribe_minMsgId_returnSuback) {
 
-    uint16_t expected_msg_id = 5;
-    uint16_t expected_topic_id = 1;
-    test_regack expected_regack(expected_topic_id, expected_msg_id, TEST_ACCEPTED);
-    EXPECT_CALL(mqtt_sn_receiver, receive_regack(_)).WillOnce(check_regack(expected_regack));
-
-    uint16_t msg_id = 5;
-    uint16_t topic_id = 0;
-    mqtt_sn_sender.send_register(topic_id, msg_id, topic);
+    ASSERT_TRUE(false);
 
     // wait until all message are exchanged
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
@@ -316,16 +304,9 @@ TEST_F(LinuxUdpGateway_Register_Check, RegisterTopicName_topicNameMax_return_reg
     std::cout << std::endl;
 }
 
-TEST_F(LinuxUdpGateway_Register_Check, RegisterTopicName_topicNameTooShort_return_regackaccepted) {
+TEST_F(LinuxUdpGateway_Unsubscribe_Check, Unsubscribe_maxMsgId_) {
 
-    const char *topic = "";
-
-    test_disconnect expected_disconnect;
-    EXPECT_CALL(mqtt_sn_receiver, receive_disconnect(_)).WillOnce(check_disconnect(expected_disconnect));
-
-    uint16_t msg_id = 5;
-    uint16_t topic_id = 0;
-    mqtt_sn_sender.send_register(topic_id, msg_id, topic);
+    ASSERT_TRUE(false);
 
     // wait until all message are exchanged
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
@@ -333,21 +314,93 @@ TEST_F(LinuxUdpGateway_Register_Check, RegisterTopicName_topicNameTooShort_retur
     std::cout << std::endl;
 }
 
-TEST_F(LinuxUdpGateway_Register_Check, RegisterTopicName_topicNameTooLong_return_regackaccepted) {
-    // 249 characters + 1 byte null-terminator
-    const char *topic = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed quis massa mauris. Aenean consectetur urna in libero dignissim mattis. Nunc fermentum blandit consectetur. Nam pulvinar sapien in libero fringilla tincidunt. Orci varius natoque volutpate.";
+TEST_F(LinuxUdpGateway_Unsubscribe_Check, Unsubscribe_minKnownTopicId_) {
 
-    uint16_t expected_msg_id = 5;
-    uint16_t expected_topic_id = 1;
-    test_regack expected_regack(expected_topic_id, expected_msg_id, TEST_ACCEPTED);
-    EXPECT_CALL(mqtt_sn_receiver, receive_regack(_)).WillOnce(check_regack(expected_regack));
-
-    uint16_t msg_id = 5;
-    uint16_t topic_id = 0;
-    mqtt_sn_sender.send_register(topic_id, msg_id, topic);
+    ASSERT_TRUE(false);
 
     // wait until all message are exchanged
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
     std::cout << std::endl;
 }
+
+TEST_F(LinuxUdpGateway_Unsubscribe_Check, Unsubscribe_minUnknownTopicId_) {
+
+    ASSERT_TRUE(false);
+
+    // wait until all message are exchanged
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+    std::cout << std::endl;
+}
+
+TEST_F(LinuxUdpGateway_Unsubscribe_Check, Unsubscribe_maxUnknownTopicId_) {
+
+    ASSERT_TRUE(false);
+
+    // wait until all message are exchanged
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+    std::cout << std::endl;
+}
+
+TEST_F(LinuxUdpGateway_Unsubscribe_Check, Unsubscribe_knownTopicName_returnSubackWithMatchingTopicId) {
+
+    ASSERT_TRUE(false);
+
+    // wait until all message are exchanged
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+    std::cout << std::endl;
+}
+
+TEST_F(LinuxUdpGateway_Unsubscribe_Check, Unsubscribe_knownMinTopicName_returnSubackWithMatchingTopicId) {
+
+    ASSERT_TRUE(false);
+
+    // wait until all message are exchanged
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+    std::cout << std::endl;
+}
+
+TEST_F(LinuxUdpGateway_Unsubscribe_Check, Unsubscribe_knownMaxTopicName_returnSubackWithMatchingTopicId) {
+
+    ASSERT_TRUE(false);
+
+    // wait until all message are exchanged
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+    std::cout << std::endl;
+}
+
+TEST_F(LinuxUdpGateway_Unsubscribe_Check, Unsubscribe_unknownTopicName_returnSubackWithNewTopicId) {
+
+    ASSERT_TRUE(false);
+
+    // wait until all message are exchanged
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+    std::cout << std::endl;
+}
+
+TEST_F(LinuxUdpGateway_Unsubscribe_Check, Unsubscribe_unknownMinTopicName_returnSubackWithNewTopicId) {
+
+    ASSERT_TRUE(false);
+
+    // wait until all message are exchanged
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+    std::cout << std::endl;
+}
+
+TEST_F(LinuxUdpGateway_Unsubscribe_Check, Unsubscribe_unknownMaxTopicName_returnSubackWithNewTopicId) {
+
+    ASSERT_TRUE(false);
+
+    // wait until all message are exchanged
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+    std::cout << std::endl;
+}
+*/

@@ -8,7 +8,7 @@
 #include <LinuxUdpClientFake.h>
 #include <MockMqttSnReceiver.h>
 #include <libgen.h>
-#include "google_test_main_arguments.h"
+#include "../google_test_main_arguments.h"
 #include <gmock/gmock-more-actions.h>
 
 

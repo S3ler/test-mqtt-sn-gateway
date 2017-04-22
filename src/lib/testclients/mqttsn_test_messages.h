@@ -74,6 +74,69 @@ struct test_header {
     message_type_test type;
 };
 
+#pragma pack(push, 1)
+
+struct test_advertise {
+    uint8_t length = 5;
+    message_type_test type = TEST_MQTTSN_ADVERTISE;
+    uint8_t gw_id;
+    uint16_t duration;
+
+    test_advertise(uint8_t gw_id, uint16_t duration) {
+        memset(this, 0, sizeof(test_advertise));
+        this->length = 5;
+        this->type = TEST_MQTTSN_ADVERTISE;
+        this->gw_id = gw_id;
+        this->duration = duration;
+    }
+};
+
+#pragma pack(pop)
+
+#pragma pack(push, 1)
+
+struct test_searchgw {
+    uint8_t length = 3;
+    message_type_test type = TEST_MQTTSN_SEARCHGW;
+    uint8_t radius = 0;
+
+    test_searchgw(uint8_t radius) {
+        memset(this, 0, sizeof(test_searchgw));
+        this->length = 3;
+        this->type = TEST_MQTTSN_SEARCHGW;
+        this->radius = radius;
+    }
+};
+
+#pragma pack(pop)
+
+#pragma pack(push, 1)
+
+struct test_gwinfo {
+    uint8_t length = 3;
+    message_type_test type = TEST_MQTTSN_GWINFO;
+    uint8_t gw_id = 0;
+    uint8_t gw_addr[UINT16_MAX + UINT8_MAX];
+
+    test_gwinfo(uint8_t gw_id, uint8_t *gw_addr, uint8_t gw_addr_len) {
+        memset(this, 0, sizeof(test_gwinfo));
+        this->type = TEST_MQTTSN_GWINFO;
+        this->gw_id = gw_id;
+        if (gw_addr_len == 0) {
+            this->length = 3 + 0;
+        } else {
+            if (gw_addr_len > UINT16_MAX) {
+                throw new std::invalid_argument("gatway address longer than UINT16_MAX");
+            }
+            this->length = (uint8_t) 3 + gw_addr_len;
+            memcpy(this->gw_addr, gw_addr, gw_addr_len);
+        }
+    }
+
+};
+
+#pragma pack(pop)
+
 struct test_connect {
     uint8_t length;
     message_type_test type;
@@ -112,6 +175,10 @@ struct test_connect {
 struct test_disconnect {
     uint8_t length = 2;
     message_type_test type = TEST_MQTTSN_DISCONNECT;
+
+    test_disconnect() {
+
+    }
 };
 
 struct test_connack {
@@ -194,7 +261,7 @@ struct test_willmsg {
 #pragma pack(push, 1)
 
 struct test_publish {
-    uint8_t length;
+    uint8_t length = 7;
     message_type_test type = TEST_MQTTSN_PUBLISH;
     uint8_t flags;
     uint16_t topic_id;
@@ -247,11 +314,64 @@ struct test_puback {
     uint16_t msg_id;
     return_code_test return_code;
 
-    test_puback(uint16_t topic_id, uint16_t msg_id, return_code_test return_code)
-            : topic_id(topic_id), msg_id(msg_id), return_code(return_code) {
+    test_puback(uint16_t topic_id, uint16_t msg_id, return_code_test return_code) {
         memset(this, 0, sizeof(test_puback));
-        length = 7;
-        type = TEST_MQTTSN_PUBACK;
+        this->length = 7;
+        this->type = TEST_MQTTSN_PUBACK;
+        this->topic_id = topic_id;
+        this->msg_id = msg_id;
+        this->return_code = return_code;
+    }
+};
+
+#pragma pack(pop)
+
+#pragma pack(push, 1)
+
+struct test_pubrec {
+    uint8_t length = 4;
+    message_type_test type = TEST_MQTTSN_PUBREC;
+    uint16_t msg_id;
+
+    test_pubrec(uint16_t msg_id) {
+        memset(this, 0, sizeof(test_pubrec));
+        this->length = 4;
+        this->type = TEST_MQTTSN_PUBREC;
+        this->msg_id = msg_id;
+    }
+};
+
+#pragma pack(pop)
+
+#pragma pack(push, 1)
+
+struct test_pubrel {
+    uint8_t length = 4;
+    message_type_test type = TEST_MQTTSN_PUBREL;
+    uint16_t msg_id;
+
+    test_pubrel(uint16_t msg_id) {
+        memset(this, 0, sizeof(test_pubrel));
+        this->length = 4;
+        this->type = TEST_MQTTSN_PUBREL;
+        this->msg_id = msg_id;
+    }
+};
+
+#pragma pack(pop)
+
+#pragma pack(push, 1)
+
+struct test_pubcomp {
+    uint8_t length = 4;
+    message_type_test type = TEST_MQTTSN_PUBCOMP;
+    uint16_t msg_id;
+
+    test_pubcomp(uint16_t msg_id) {
+        memset(this, 0, sizeof(test_pubcomp));
+        this->length = 4;
+        this->type = TEST_MQTTSN_PUBREC;
+        this->msg_id = msg_id;
     }
 };
 
@@ -322,7 +442,7 @@ struct test_subscribe {
     uint16_t msg_id;
     uint8_t topic_name[UINT16_MAX + UINT8_MAX];
 
-    test_subscribe(bool dup, int8_t qos, bool retain, topic_id_type_test topic_id_type,
+    test_subscribe(bool dup, int8_t qos, bool retain, bool will, bool clean_session, topic_id_type_test topic_id_type,
                    uint16_t msg_id, const char *topic_name, uint16_t topic_id) {
         memset(this, 0, sizeof(test_publish));
 
@@ -369,6 +489,18 @@ struct test_subscribe {
             this->flags |= FLAG_QOS_M1;
         }
 
+        if (retain) {
+            this->flags |= FLAG_RETAIN;
+        }
+
+        if (will) {
+            this->flags |= FLAG_WILL;
+        }
+
+        if (clean_session) {
+            this->flags |= FLAG_CLEAN;
+        }
+
         this->msg_id = msg_id;
         if (topic_id_type == TEST_TOPIC_NAME) {
             memcpy(this->topic_name, topic_name, to_copy_length);
@@ -410,6 +542,73 @@ struct test_suback {
         this->topic_id = topic_id;
         this->msg_id = msg_id;
         this->return_code = return_code;
+    }
+};
+
+#pragma pack(pop)
+
+#pragma pack(push, 1)
+
+struct test_unsubscribe {
+    uint8_t length = 5;
+    message_type_test type = TEST_MQTTSN_UNSUBSCRIBE;
+    uint8_t flags;
+    uint16_t msg_id;
+    uint8_t topic_name[UINT16_MAX + UINT8_MAX];
+
+    test_unsubscribe(topic_id_type_test topic_id_type, uint16_t msg_id, const char *topic_name, uint16_t topic_id) {
+        memset(this, 0, sizeof(test_unsubscribe));
+
+        uint16_t to_copy_length = 0;
+        if (topic_id_type == TEST_TOPIC_NAME) {
+            uint16_t topic_name_length = (uint8_t) strlen(topic_name);
+            if (topic_name_length > UINT16_MAX) {
+                throw new std::invalid_argument("topic_name longer than UINT16_MAX");
+            }
+            to_copy_length = topic_name_length;
+            this->length = (uint8_t) (5 + 1 + to_copy_length);
+        } else if (topic_id_type == TEST_PREDEFINED_TOPIC_ID || topic_id_type == TEST_SHORT_TOPIC_NAME) {
+            to_copy_length = 2;
+            this->length = (uint8_t) (5 + 0 + to_copy_length);
+        }
+
+        this->type = TEST_MQTTSN_UNSUBSCRIBE;
+        this->flags = 0x0;
+
+        if (topic_id_type == TEST_TOPIC_NAME) {
+            this->flags |= FLAG_TOPIC_NAME;
+        } else if (topic_id_type == TEST_PREDEFINED_TOPIC_ID) {
+            this->flags |= FLAG_TOPIC_PREDEFINED_ID;
+        } else if (topic_id_type == TEST_SHORT_TOPIC_NAME) {
+            this->flags |= FLAG_TOPIC_SHORT_NAME;
+        } else {
+            this->flags |= FLAG_TOPIC_RESERVED;
+        }
+
+        this->msg_id = msg_id;
+
+        if (topic_id_type == TEST_TOPIC_NAME) {
+            memcpy(this->topic_name, topic_name, to_copy_length);
+        } else if (topic_id_type == TEST_PREDEFINED_TOPIC_ID || topic_id_type == TEST_SHORT_TOPIC_NAME) {
+            memcpy(this->topic_name, &topic_id, to_copy_length);
+        }
+    }
+};
+
+#pragma pack(pop)
+
+#pragma pack(push, 1)
+
+struct test_unsuback {
+    uint8_t length = 4;
+    message_type_test type = TEST_MQTTSN_UNSUBACK;
+    uint16_t msg_id;
+
+    test_unsuback(uint16_t msg_id) : msg_id(msg_id) {
+        memset(this, 0, sizeof(test_unsuback));
+        this->length = 4;
+        this->type = TEST_MQTTSN_UNSUBACK;
+        this->msg_id = msg_id;
     }
 };
 

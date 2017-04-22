@@ -13,7 +13,7 @@
 #include <LinuxUdpClientFake.h>
 #include <MockMqttSnReceiver.h>
 #include "../implementation/linux-mqtt-sn-gateway/src/Implementation/LinuxGateway.h"
-#include "google_test_main_arguments.h"
+#include "../google_test_main_arguments.h"
 
 using ::testing::_;
 using ::testing::AtLeast;

@@ -30,6 +30,8 @@ public:
 
 public:
 
+    void send_searchgw(uint8_t radius);
+
     void send_connect(const char *client_id, uint16_t duration, bool clean_session, bool will);
 
     void send_willtopic(const char *willtopic, uint8_t qos, bool retain);
@@ -39,11 +41,21 @@ public:
     void send_publish(bool dup, int8_t qos, bool retain, bool short_topic, uint16_t topic_id,
                       uint16_t msg_id, const uint8_t *data, uint8_t data_length);
 
+    void send_puback(uint8_t topic_id, uint16_t msg_id, return_code_test return_code);
+
+    void send_pubcomp(uint16_t msg_id);
+
+    void send_pubrel(uint16_t msg_id);
+
+    void send_pubrec(uint16_t msg_id);
+
     void send_register(uint16_t topic_id, uint16_t msg_id, const char *topic_name);
 
-    void send_subscribe(bool dup, uint8_t qos, bool retain, topic_id_type_test topic_id_type, uint16_t msg_id,
-                        const char *topic_name, uint16_t topic_id);
+    void send_subscribe(bool dup, uint8_t qos, bool retain, bool will, bool clean_session,
+                        topic_id_type_test topic_id_type,
+                        uint16_t msg_id, const char *topic_name, uint16_t topic_id);
 
+    void send_unsubscribe(topic_id_type_test topic_id_type, uint16_t msg_id, const char *topic_name, uint16_t topic_id);
 
 private:
     void connect(device_address *address);
@@ -70,6 +82,10 @@ public:
     MqttSnReceiverInterface *receiver = nullptr;
     std::thread thread;
     device_address *gw_address = nullptr;
+
+
+
+
 };
 
 

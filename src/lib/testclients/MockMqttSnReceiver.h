@@ -11,6 +11,12 @@
 
 class MqttSnReceiverMock : public MqttSnReceiverInterface {
 public:
+    MOCK_METHOD1(receive_advertise,
+                void(test_advertise* pAdvertise));
+    MOCK_METHOD1(receive_searchgw,
+                 void(test_searchgw* pSearchgw));
+    MOCK_METHOD1(receive_gwinfo,
+                 void(test_gwinfo* pGwinfo));
     MOCK_METHOD1(receive_connect,
                  void(test_connect *pConnect));
     MOCK_METHOD1(receive_disconnect,
@@ -29,6 +35,12 @@ public:
                  void(test_publish *pPublish));
     MOCK_METHOD1(receive_puback,
                  void(test_puback *pPuback));
+    MOCK_METHOD1(receive_pubrec,
+                 void(test_pubrec *pPubrec));
+    MOCK_METHOD1(receive_pubrel,
+                 void(test_pubrel *pPubrel));
+    MOCK_METHOD1(receive_pubcomp,
+                 void(test_pubcomp *pPubcomp));
     MOCK_METHOD1(receiver_register,
                  void(test_register *pRegister));
     MOCK_METHOD1(receive_regack,
@@ -37,6 +49,10 @@ public:
                  void(test_subscribe *pSubscribe));
     MOCK_METHOD1(receive_suback,
                  void(test_suback *pSuback));
+    MOCK_METHOD1(receive_unsubscribe,
+                 void(test_unsubscribe *pUnsubscribe));
+    MOCK_METHOD1(receive_unsuback,
+                 void(test_unsuback *pUnsuback));
     MOCK_METHOD3(receive_any_message,
                  void(uint16_t length, message_type_test type, uint8_t* data));
 
