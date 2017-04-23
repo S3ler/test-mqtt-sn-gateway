@@ -69,7 +69,7 @@ public:
         std::ofstream mqttsn_con(_rootPath + "/MQTTSN.CON");
         mqttsn_con << "gatewayid 5" << std::endl;
         mqttsn_con << "timeout 10" << std::endl;
-        mqttsn_con << "advertise 5" << std::endl;
+        mqttsn_con << "advertise 2" << std::endl;
         mqttsn_con.close();
 
         std::ofstream topics_pre(_rootPath + "/TOPICS.PRE");
@@ -165,14 +165,16 @@ ACTION_P(check_advertise, expected) {
 
 TEST_F(LinuxUdpGateway_Advertise, Receive_Advertise) {
 
+    mqtt_sn_sender.connect(&gw_address);
+
     uint8_t expected_gw_id = 5;
-    uint8_t expected_advertise_duration = 5;
+    uint8_t expected_advertise_duration = 2;
     test_advertise expected_advertise(expected_gw_id, expected_advertise_duration);
 
     EXPECT_CALL(mqtt_sn_receiver, receive_advertise(_)).Times(2).WillRepeatedly(check_advertise(expected_advertise));
 
     // wait until all message are exchanged
-    std::this_thread::sleep_for(std::chrono::milliseconds(30000));
+    std::this_thread::sleep_for(std::chrono::milliseconds(5900));
 
     std::cout << std::endl;
 }

@@ -230,8 +230,8 @@ void LinuxUdpClientFake::connect(device_address *address) {
 
     // set timout
     struct timeval tv;
-    tv.tv_sec = timout_seconds;
-    tv.tv_usec = timout_micro_s;
+    tv.tv_sec = 0;  // 0 Secs Timeout
+    tv.tv_usec = 200000;  // 200 ms Timeout
 
 
     if (setsockopt(s, SOL_SOCKET, SO_RCVTIMEO, (char *) &tv, sizeof(struct timeval)) == -1) {
@@ -246,6 +246,89 @@ void LinuxUdpClientFake::connect(device_address *address) {
         exit(1);
     }
 
+    // broadcast init
+    static int port1 = 1234;
+
+    static struct ip_mreq command;
+    int loop = 1;
+    struct sockaddr_in sin;
+    memset(&sin, 0, sizeof(sin));
+    sin.sin_family = AF_INET;
+    sin.sin_addr.s_addr = htonl(INADDR_ANY);
+    sin.sin_port = htons(port1);
+    if ((socket_descriptor = socket(PF_INET,
+                                    SOCK_DGRAM, 0)) == -1) {
+        perror("socket()");
+        exit(1);
+        //exit(EXIT_FAILURE);
+    }
+    /* Mehr Prozessen erlauben, denselben Port zu nutzen */
+    loop = 1;
+    if (setsockopt(socket_descriptor,
+                   SOL_SOCKET,
+                   SO_REUSEADDR,
+                   &loop, sizeof(loop)) < 0) {
+        perror("setsockopt:SO_REUSEADDR");
+        exit(EXIT_FAILURE);
+    }
+    if (bind(socket_descriptor,
+             (struct sockaddr *) &sin,
+             sizeof(sin)) < 0) {
+        perror("bind");
+        exit(1);
+
+
+    }
+    /* Broadcast auf dieser Maschine zulassen */
+    loop = 1;
+    if (setsockopt(socket_descriptor,
+                   IPPROTO_IP,
+                   IP_MULTICAST_LOOP,
+                   &loop, sizeof(loop)) < 0) {
+        perror("setsockopt:IP_MULTICAST_LOOP");
+        exit(1);
+
+    }
+
+
+    /* Join the broadcast group: */
+    command.imr_multiaddr.s_addr = inet_addr("224.0.0.0");
+    command.imr_interface.s_addr = htonl(INADDR_ANY);
+    if (command.imr_multiaddr.s_addr == -1) {
+        perror("224.0.0.0 ist keine Multicast-Adresse\n");
+        exit(1);
+        //exit(EXIT_FAILURE);
+    }
+    if (setsockopt(socket_descriptor,
+                   IPPROTO_IP,
+                   IP_ADD_MEMBERSHIP,
+                   &command, sizeof(command)) < 0) {
+        perror("setsockopt:IP_ADD_MEMBERSHIP");
+        exit(1);
+
+    }
+
+    // set timout
+    struct timeval udp_socket_timeval;
+    udp_socket_timeval.tv_sec = 0;  // 0 Secs Timeout
+    udp_socket_timeval.tv_usec = 200000;  // 200 ms Timeout
+
+
+    if (setsockopt(socket_descriptor, SOL_SOCKET, SO_RCVTIMEO, (char *) &udp_socket_timeval, sizeof(struct timeval)) == -1) {
+        exit(1);
+
+    }
+
+    // save bc address1 as value now
+    struct sockaddr_in address1;
+    memset (&address1, 0, sizeof (address1));
+    address1.sin_family = AF_INET;
+    address1.sin_addr.s_addr = inet_addr ("224.0.0.0");
+    address1.sin_port = htons (port1);
+
+    device_address bc_address1 = this->getDevice_address(&address1);
+    memset(&broadcast_address, 0, sizeof(device_address));
+    memcpy(this->broadcast_address.bytes, bc_address1.bytes, sizeof(device_address));
 
 }
 
@@ -257,7 +340,13 @@ void LinuxUdpClientFake::disconnect() {
 void LinuxUdpClientFake::loop() {
     while (!stopped) {
         int recv_len;
+        memset(&buf, 0, BUFLEN);
         if ((recv_len = recvfrom(s, buf, BUFLEN, 0, (struct sockaddr *) &si_other, &slen)) != -1) {
+            device_address client_address = getDevice_address(&si_other);
+            this->receive((uint8_t *) buf, (uint16_t) recv_len);
+        }
+        memset(&buf, 0, BUFLEN);
+        if ((recv_len = recvfrom(socket_descriptor, buf, BUFLEN, 0, (struct sockaddr *) &si_other, &slen)) != -1) {
             device_address client_address = getDevice_address(&si_other);
             this->receive((uint8_t *) buf, (uint16_t) recv_len);
         }

@@ -24,7 +24,12 @@ public:
     char buf[BUFLEN];
     char message[BUFLEN];
 
+    int socket_descriptor;
+
     device_address address;
+
+    device_address broadcast_address;
+
 
     std::atomic<bool> stopped{false};
 
@@ -57,7 +62,7 @@ public:
 
     void send_unsubscribe(topic_id_type_test topic_id_type, uint16_t msg_id, const char *topic_name, uint16_t topic_id);
 
-private:
+
     void connect(device_address *address);
 
     void disconnect();
