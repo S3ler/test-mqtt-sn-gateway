@@ -170,7 +170,7 @@ TEST_F(LinuxUdpGateway_SearchGw_Check, SearchGW_returns_GWInfo) {
     uint8_t expected_gw_info = 5;
     test_gwinfo expected_gwinfo(expected_gw_info, expected_gw_addr, expected_gw_addr_len);
 
-    EXPECT_CALL(mqtt_sn_receiver, receive_gwinfo(_)).WillOnce(check_gwinfo(expected_gwinfo));
+    EXPECT_CALL(mqtt_sn_receiver, receive_gwinfo(_)).WillRepeatedly(check_gwinfo(expected_gwinfo));
 
     uint8_t radius = 5;
     mqtt_sn_sender.send_searchgw(radius);
@@ -186,7 +186,7 @@ TEST_F(LinuxUdpGateway_SearchGw_Check, SearchGW_minRadius_returnsGWInfo) {
     uint8_t expected_gw_info = 5;
     test_gwinfo expected_gwinfo(expected_gw_info, expected_gw_addr, expected_gw_addr_len);
 
-    EXPECT_CALL(mqtt_sn_receiver, receive_gwinfo(_)).WillOnce(check_gwinfo(expected_gwinfo));
+    EXPECT_CALL(mqtt_sn_receiver, receive_gwinfo(_)).WillRepeatedly(check_gwinfo(expected_gwinfo));
 
     uint8_t radius = 0;
     mqtt_sn_sender.send_searchgw(radius);
@@ -202,7 +202,7 @@ TEST_F(LinuxUdpGateway_SearchGw_Check, SearchGW_maxRadius_returnsGWInfo) {
     uint8_t expected_gw_info = 5;
     test_gwinfo expected_gwinfo(expected_gw_info, expected_gw_addr, expected_gw_addr_len);
 
-    EXPECT_CALL(mqtt_sn_receiver, receive_gwinfo(_)).WillOnce(check_gwinfo(expected_gwinfo));
+    EXPECT_CALL(mqtt_sn_receiver, receive_gwinfo(_)).WillRepeatedly(check_gwinfo(expected_gwinfo));
 
     uint8_t radius = 255;
     mqtt_sn_sender.send_searchgw(radius);
