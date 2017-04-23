@@ -78,8 +78,14 @@ protected:
         mqtt_con << "brokeraddress 127.0.0.1" << std::endl;
         mqtt_con << "brokerport 1884" << std::endl;
         mqtt_con << "clientid mqtt-sn gateway 0x01" << std::endl;
-        mqtt_con << "gatewayid 1" << std::endl;
         mqtt_con.close();
+
+
+        std::ofstream mqttsn_con(_rootPath + "/MQTTSN.CON");
+        mqttsn_con << "gatewayid 1" << std::endl;
+        mqttsn_con << "timeout 10" << std::endl;
+        mqttsn_con << "advertise 900" << std::endl;
+        mqttsn_con.close();
 
         std::ofstream topics_pre(_rootPath + "/TOPICS.PRE");
         for (auto &&predefinedTopic : predefined_topics) {
@@ -104,6 +110,7 @@ protected:
         std::remove((_rootPath + "/CLIENTS").c_str());
 
         std::remove((_rootPath + "/MQTT.CON").c_str());
+        std::remove((_rootPath + "/MQTTSN.CON").c_str());
         std::remove((_rootPath + "/TOPICS.PRE").c_str());
     }
 

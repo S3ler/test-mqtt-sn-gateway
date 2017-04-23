@@ -245,6 +245,8 @@ void LinuxUdpClientFake::connect(device_address *address) {
         std::cout << "broadcastEnable" << std::endl;
         exit(1);
     }
+
+
 }
 
 void LinuxUdpClientFake::disconnect() {
