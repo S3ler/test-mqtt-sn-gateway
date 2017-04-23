@@ -14,7 +14,7 @@ void LinuxUdpClientFake::send_searchgw(uint8_t radius) {
 
     test_searchgw msg(radius);
 
-    if (sendto(s, (const void *) &msg, msg.length, 0, (struct sockaddr *) &si_other, slen) == -1) {
+    if (sendto(socket_descriptor, (const void *) &msg, msg.length, 0, (struct sockaddr *) &si_other, slen) == -1) {
         std::cout << "sendto()Radius" << std::endl;
     }
 }
