@@ -299,7 +299,6 @@ TEST_F(LinuxUdpGateway_Functional_Subscribe_Check, Subscribe_QoS0_ByMinTopicId_p
     std::cout << std::endl;
 }
 
-
 TEST_F(LinuxUdpGateway_Functional_Subscribe_Check, Subscribe_QoS1_ByMinTopicId_predefined_ReceiveQoS1Publish) {
 
     predefined_topics.push_back(std::string("0 /minimum/predefined/topic/id"));
@@ -356,7 +355,7 @@ TEST_F(LinuxUdpGateway_Functional_Subscribe_Check, Subscribe_QoS1_ByMinTopicId_p
     mqtt_client.publish(publish_topic, publish_payload, publish_payload_len, publish_qos, publish_retain);
 
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    std::this_thread::sleep_for(std::chrono::milliseconds(2000));
     std::cout << std::endl;
 }
 
@@ -385,16 +384,8 @@ TEST_F(LinuxUdpGateway_Functional_Subscribe_Check, Subscribe_QoS2_ByMinTopicId_p
                                   expected_short_topic, expected_publish_topic_id,
                                   expected_publish_msg_id, expected_payload, expected_payload_len);
 
-    uint8_t puback_topic_id = 2;
-    uint16_t puback_msg_id = 1;
-    return_code_test puback_return_code = TEST_ACCEPTED;
-    EXPECT_CALL(mqtt_sn_receiver, receive_publish(_))
-            .WillOnce(DoAll(check_publish(expected_publish),
-                            InvokeUnrelatedFunction(&mqtt_sn_sender, &LinuxUdpClientFake::send_puback,
-                                                    puback_topic_id, puback_msg_id, puback_return_code)));
-
     uint16_t pubrec_msg_id = 1;
-    EXPECT_CALL(mqtt_sn_receiver, receive_publish(_))
+     EXPECT_CALL(mqtt_sn_receiver, receive_publish(_))
             .WillOnce(DoAll(check_publish(expected_publish),
                             InvokeUnrelatedFunction(&mqtt_sn_sender, &LinuxUdpClientFake::send_pubrec,
                                                     pubrec_msg_id)));
@@ -431,6 +422,371 @@ TEST_F(LinuxUdpGateway_Functional_Subscribe_Check, Subscribe_QoS2_ByMinTopicId_p
 
 
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    std::cout << std::endl;
+}
+
+TEST_F(LinuxUdpGateway_Functional_Subscribe_Check, Subscribe_QoS0_ByMinTopicId_predefined_ReceiveMqttRetainQoS0Publish) {
+
+    predefined_topics.push_back(std::string("0 /minimum/predefined/topic/id"));
+    delete_predefined_topic();
+    create_predefined_topic();
+
+    uint16_t expected_msg_id = 5;
+    uint16_t expected_topic_id = 2;
+    uint8_t expected_qos = 0;
+    test_suback expected_suback(expected_qos, expected_topic_id, expected_msg_id, TEST_ACCEPTED);
+    EXPECT_CALL(mqtt_sn_receiver, receive_suback(_)).WillOnce(check_suback(expected_suback));
+
+    bool expected_dup = false;
+    int8_t expected_publish_qos = 0;
+    bool expected_retain = false;
+    bool expected_short_topic = true;
+    uint8_t expected_publish_topic_id = 2;
+    uint8_t expected_publish_msg_id = 0;
+    const char *expected_payload_char = "some mqtt client payload";
+    const uint8_t *expected_payload = (const uint8_t *) expected_payload_char;
+
+    uint8_t expected_payload_len = (uint8_t) (strlen(expected_payload_char) + 1);
+    test_publish expected_publish(expected_dup, expected_publish_qos, expected_retain,
+                                  expected_short_topic, expected_publish_topic_id,
+                                  expected_publish_msg_id, expected_payload, expected_payload_len);
+
+    EXPECT_CALL(mqtt_sn_receiver, receive_publish(_)).WillOnce(check_publish(expected_publish));
+
+    const char *publish_topic = "/minimum/predefined/topic/id";
+    const char *publish_payload_char = "some mqtt client payload";
+    const uint8_t *publish_payload = (const uint8_t *) publish_payload_char;
+    uint8_t publish_payload_len = (uint8_t) (strlen(publish_payload_char) + 1);
+    uint8_t publish_qos = 0;
+    bool publish_retain = true;
+    mqtt_client.publish(publish_topic, publish_payload, publish_payload_len, publish_qos, publish_retain);
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+    bool dup = false;
+    uint8_t qos = 0;
+    bool retain = false;
+    bool will = false;
+    bool clean_session = false;
+    uint16_t msg_id = 5;
+    const char *empty_topic = "";
+    uint16_t topic_id = 0;
+    mqtt_sn_sender.send_subscribe(dup, qos, retain, will, clean_session, TEST_PREDEFINED_TOPIC_ID,
+                                  msg_id, empty_topic, topic_id);
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(1500));
+    std::cout << std::endl;
+}
+
+TEST_F(LinuxUdpGateway_Functional_Subscribe_Check, Subscribe_QoS1_ByMinTopicId_predefined_ReceiveMqttRetainQoS1Publish) {
+
+    predefined_topics.push_back(std::string("0 /minimum/predefined/topic/id"));
+    delete_predefined_topic();
+    create_predefined_topic();
+
+    uint16_t expected_msg_id = 5;
+    uint16_t expected_topic_id = 2;
+    uint8_t expected_qos = 1;
+    test_suback expected_suback(expected_qos, expected_topic_id, expected_msg_id, TEST_ACCEPTED);
+    EXPECT_CALL(mqtt_sn_receiver, receive_suback(_)).WillOnce(check_suback(expected_suback));
+
+    bool expected_dup = false;
+    int8_t expected_publish_qos = 1;
+    bool expected_retain = false;
+    bool expected_short_topic = true;
+    uint8_t expected_publish_topic_id = 2;
+    uint8_t expected_publish_msg_id = 1;
+    const char *expected_payload_char = "some mqtt client payload";
+    const uint8_t *expected_payload = (const uint8_t *) expected_payload_char;
+
+    uint8_t expected_payload_len = (uint8_t) (strlen(expected_payload_char) + 1);
+    test_publish expected_publish(expected_dup, expected_publish_qos, expected_retain,
+                                  expected_short_topic, expected_publish_topic_id,
+                                  expected_publish_msg_id, expected_payload, expected_payload_len);
+
+    uint8_t puback_topic_id = 2;
+    uint16_t puback_msg_id = 1;
+    return_code_test puback_return_code = TEST_ACCEPTED;
+    EXPECT_CALL(mqtt_sn_receiver, receive_publish(_))
+            .WillOnce(DoAll(check_publish(expected_publish),
+                            InvokeUnrelatedFunction(&mqtt_sn_sender, &LinuxUdpClientFake::send_puback,
+                                                    puback_topic_id, puback_msg_id, puback_return_code)));
+
+    const char *publish_topic = "/minimum/predefined/topic/id";
+    const char *publish_payload_char = "some mqtt client payload";
+    const uint8_t *publish_payload = (const uint8_t *) publish_payload_char;
+    uint8_t publish_payload_len = (uint8_t) (strlen(publish_payload_char) + 1);
+    uint8_t publish_qos = 1;
+    bool publish_retain = true;
+    mqtt_client.publish(publish_topic, publish_payload, publish_payload_len, publish_qos, publish_retain);
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+
+    bool dup = false;
+    uint8_t qos = 1;
+    bool retain = false;
+    bool will = false;
+    bool clean_session = false;
+    uint16_t msg_id = 5;
+    const char *empty_topic = "";
+    uint16_t topic_id = 0;
+    mqtt_sn_sender.send_subscribe(dup, qos, retain, will, clean_session, TEST_PREDEFINED_TOPIC_ID,
+                                  msg_id, empty_topic, topic_id);
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+
+    std::cout << std::endl;
+}
+
+TEST_F(LinuxUdpGateway_Functional_Subscribe_Check, Subscribe_QoS2_ByMinTopicId_predefined_ReceiveMqttRetainQoS2Publish) {
+
+    predefined_topics.push_back(std::string("0 /minimum/predefined/topic/id"));
+    delete_predefined_topic();
+    create_predefined_topic();
+
+    uint16_t expected_msg_id = 5;
+    uint16_t expected_topic_id = 2;
+    uint8_t expected_qos = 2;
+    test_suback expected_suback(expected_qos, expected_topic_id, expected_msg_id, TEST_ACCEPTED);
+    EXPECT_CALL(mqtt_sn_receiver, receive_suback(_)).WillOnce(check_suback(expected_suback));
+
+    bool expected_dup = false;
+    int8_t expected_publish_qos = 2;
+    bool expected_retain = false;
+    bool expected_short_topic = true;
+    uint8_t expected_publish_topic_id = 2;
+    uint8_t expected_publish_msg_id = 1;
+    const char *expected_payload_char = "some mqtt client payload";
+    const uint8_t *expected_payload = (const uint8_t *) expected_payload_char;
+    uint8_t expected_payload_len = (uint8_t) (strlen(expected_payload_char) + 1);
+    test_publish expected_publish(expected_dup, expected_publish_qos, expected_retain,
+                                  expected_short_topic, expected_publish_topic_id,
+                                  expected_publish_msg_id, expected_payload, expected_payload_len);
+
+    uint16_t pubrec_msg_id = 1;
+    EXPECT_CALL(mqtt_sn_receiver, receive_publish(_))
+            .WillOnce(DoAll(check_publish(expected_publish),
+                            InvokeUnrelatedFunction(&mqtt_sn_sender, &LinuxUdpClientFake::send_pubrec,
+                                                    pubrec_msg_id)));
+
+    uint16_t pubrel_msg_id = 2;
+    test_pubrel expected_pubrel(pubrel_msg_id);
+
+    uint16_t pubcomp_msg_id = 3;
+    EXPECT_CALL(mqtt_sn_receiver, receive_pubrel(_))
+            .WillOnce(DoAll(check_pubrel(expected_pubrel),
+                            InvokeUnrelatedFunction(&mqtt_sn_sender, &LinuxUdpClientFake::send_pubcomp,
+                                                    pubcomp_msg_id)));
+
+
+    const char *publish_topic = "/minimum/predefined/topic/id";
+    const char *publish_payload_char = "some mqtt client payload";
+    const uint8_t *publish_payload = (const uint8_t *) publish_payload_char;
+    uint8_t publish_payload_len = (uint8_t) (strlen(publish_payload_char) + 1);
+    uint8_t publish_qos = 2;
+    bool publish_retain = true;
+    mqtt_client.publish(publish_topic, publish_payload, publish_payload_len, publish_qos, publish_retain);
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+
+    bool dup = false;
+    uint8_t qos = 2;
+    bool retain = false;
+    bool will = false;
+    bool clean_session = false;
+    uint16_t msg_id = 5;
+    const char *empty_topic = "";
+    uint16_t topic_id = 0;
+    mqtt_sn_sender.send_subscribe(dup, qos, retain, will, clean_session, TEST_PREDEFINED_TOPIC_ID,
+                                  msg_id, empty_topic, topic_id);
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+
+    std::cout << std::endl;
+}
+
+TEST_F(LinuxUdpGateway_Functional_Subscribe_Check, Subscribe_QoS0_ByMinTopicId_predefined_ReceiveMqttSnRetainQoS0Publish) {
+
+    predefined_topics.push_back(std::string("0 /minimum/predefined/topic/id"));
+    delete_predefined_topic();
+    create_predefined_topic();
+
+    uint16_t expected_msg_id = 5;
+    uint16_t expected_topic_id = 2;
+    uint8_t expected_qos = 0;
+    test_suback expected_suback(expected_qos, expected_topic_id, expected_msg_id, TEST_ACCEPTED);
+    EXPECT_CALL(mqtt_sn_receiver, receive_suback(_)).WillOnce(check_suback(expected_suback));
+
+    bool expected_dup = false;
+    int8_t expected_publish_qos = 0;
+    bool expected_retain = false;
+    bool expected_short_topic = true;
+    uint8_t expected_publish_topic_id = 2;
+    uint8_t expected_publish_msg_id = 0;
+    const char *expected_payload_char = "some mqtt client payload";
+    const uint8_t *expected_payload = (const uint8_t *) expected_payload_char;
+
+    uint8_t expected_payload_len = (uint8_t) (strlen(expected_payload_char) + 1);
+    test_publish expected_publish(expected_dup, expected_publish_qos, expected_retain,
+                                  expected_short_topic, expected_publish_topic_id,
+                                  expected_publish_msg_id, expected_payload, expected_payload_len);
+
+    EXPECT_CALL(mqtt_sn_receiver, receive_publish(_)).WillOnce(check_publish(expected_publish));
+
+
+    const char *publish_payload_char = "some mqtt client payload";
+    const uint8_t *publish_payload = (const uint8_t *) publish_payload_char;
+    uint8_t publish_payload_len = (uint8_t) (strlen(publish_payload_char) + 1);
+    uint8_t publish_qos = 0;
+    bool publish_retain = true;
+    bool publish_short_topic = false;
+    mqtt_sn_sender.send_publish(false, publish_qos, publish_retain, publish_short_topic, (uint16_t) 0, 0, publish_payload, publish_payload_len);
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+    bool dup = false;
+    uint8_t qos = 0;
+    bool retain = false;
+    bool will = false;
+    bool clean_session = false;
+    uint16_t msg_id = 5;
+    const char *empty_topic = "";
+    uint16_t topic_id = 0;
+    mqtt_sn_sender.send_subscribe(dup, qos, retain, will, clean_session, TEST_PREDEFINED_TOPIC_ID,
+                                  msg_id, empty_topic, topic_id);
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(1500));
+
+    std::cout << std::endl;
+}
+
+TEST_F(LinuxUdpGateway_Functional_Subscribe_Check, Subscribe_QoS1_ByMinTopicId_predefined_ReceiveMqttSnRetainQoS1Publish) {
+
+    predefined_topics.push_back(std::string("0 /minimum/predefined/topic/id"));
+    delete_predefined_topic();
+    create_predefined_topic();
+
+    uint16_t expected_msg_id = 5;
+    uint16_t expected_topic_id = 2;
+    uint8_t expected_qos = 1;
+    test_suback expected_suback(expected_qos, expected_topic_id, expected_msg_id, TEST_ACCEPTED);
+    EXPECT_CALL(mqtt_sn_receiver, receive_suback(_)).WillOnce(check_suback(expected_suback));
+
+    bool expected_dup = false;
+    int8_t expected_publish_qos = 1;
+    bool expected_retain = false;
+    bool expected_short_topic = true;
+    uint8_t expected_publish_topic_id = 2;
+    uint8_t expected_publish_msg_id = 1;
+    const char *expected_payload_char = "some mqtt client payload";
+    const uint8_t *expected_payload = (const uint8_t *) expected_payload_char;
+
+    uint8_t expected_payload_len = (uint8_t) (strlen(expected_payload_char) + 1);
+    test_publish expected_publish(expected_dup, expected_publish_qos, expected_retain,
+                                  expected_short_topic, expected_publish_topic_id,
+                                  expected_publish_msg_id, expected_payload, expected_payload_len);
+
+    uint8_t puback_topic_id = 2;
+    uint16_t puback_msg_id = 1;
+    return_code_test puback_return_code = TEST_ACCEPTED;
+    EXPECT_CALL(mqtt_sn_receiver, receive_publish(_))
+            .WillOnce(DoAll(check_publish(expected_publish),
+                            InvokeUnrelatedFunction(&mqtt_sn_sender, &LinuxUdpClientFake::send_puback,
+                                                    puback_topic_id, puback_msg_id, puback_return_code)));
+
+    const char *publish_payload_char = "some mqtt client payload";
+    const uint8_t *publish_payload = (const uint8_t *) publish_payload_char;
+    uint8_t publish_payload_len = (uint8_t) (strlen(publish_payload_char) + 1);
+    uint8_t publish_qos = 0;
+    bool publish_retain = true;
+    bool publish_short_topic = false;
+    mqtt_sn_sender.send_publish(false, publish_qos, publish_retain, publish_short_topic, (uint16_t) 0, 0, publish_payload, publish_payload_len);
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+
+    bool dup = false;
+    uint8_t qos = 1;
+    bool retain = false;
+    bool will = false;
+    bool clean_session = false;
+    uint16_t msg_id = 5;
+    const char *empty_topic = "";
+    uint16_t topic_id = 0;
+    mqtt_sn_sender.send_subscribe(dup, qos, retain, will, clean_session, TEST_PREDEFINED_TOPIC_ID,
+                                  msg_id, empty_topic, topic_id);
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(1500));
+
+    std::cout << std::endl;
+}
+
+TEST_F(LinuxUdpGateway_Functional_Subscribe_Check, Subscribe_QoS2_ByMinTopicId_predefined_ReceiveMqttSnRetainQoS2Publish) {
+
+    predefined_topics.push_back(std::string("0 /minimum/predefined/topic/id"));
+    delete_predefined_topic();
+    create_predefined_topic();
+
+    uint16_t expected_msg_id = 5;
+    uint16_t expected_topic_id = 2;
+    uint8_t expected_qos = 2;
+    test_suback expected_suback(expected_qos, expected_topic_id, expected_msg_id, TEST_ACCEPTED);
+    EXPECT_CALL(mqtt_sn_receiver, receive_suback(_)).WillOnce(check_suback(expected_suback));
+
+    bool expected_dup = false;
+    int8_t expected_publish_qos = 2;
+    bool expected_retain = false;
+    bool expected_short_topic = true;
+    uint8_t expected_publish_topic_id = 2;
+    uint8_t expected_publish_msg_id = 1;
+    const char *expected_payload_char = "some mqtt client payload";
+    const uint8_t *expected_payload = (const uint8_t *) expected_payload_char;
+    uint8_t expected_payload_len = (uint8_t) (strlen(expected_payload_char) + 1);
+    test_publish expected_publish(expected_dup, expected_publish_qos, expected_retain,
+                                  expected_short_topic, expected_publish_topic_id,
+                                  expected_publish_msg_id, expected_payload, expected_payload_len);
+
+    uint16_t pubrec_msg_id = 1;
+    EXPECT_CALL(mqtt_sn_receiver, receive_publish(_))
+            .WillOnce(DoAll(check_publish(expected_publish),
+                            InvokeUnrelatedFunction(&mqtt_sn_sender, &LinuxUdpClientFake::send_pubrec,
+                                                    pubrec_msg_id)));
+
+    uint16_t pubrel_msg_id = 2;
+    test_pubrel expected_pubrel(pubrel_msg_id);
+
+    uint16_t pubcomp_msg_id = 3;
+    EXPECT_CALL(mqtt_sn_receiver, receive_pubrel(_))
+            .WillOnce(DoAll(check_pubrel(expected_pubrel),
+                            InvokeUnrelatedFunction(&mqtt_sn_sender, &LinuxUdpClientFake::send_pubcomp,
+                                                    pubcomp_msg_id)));
+
+
+    const char *publish_payload_char = "some mqtt client payload";
+    const uint8_t *publish_payload = (const uint8_t *) publish_payload_char;
+    uint8_t publish_payload_len = (uint8_t) (strlen(publish_payload_char) + 1);
+    uint8_t publish_qos = 0;
+    bool publish_retain = true;
+    bool publish_short_topic = false;
+    mqtt_sn_sender.send_publish(false, publish_qos, publish_retain, publish_short_topic, (uint16_t) 0, 0, publish_payload, publish_payload_len);
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+
+    bool dup = false;
+    uint8_t qos = 2;
+    bool retain = false;
+    bool will = false;
+    bool clean_session = false;
+    uint16_t msg_id = 5;
+    const char *empty_topic = "";
+    uint16_t topic_id = 0;
+    mqtt_sn_sender.send_subscribe(dup, qos, retain, will, clean_session, TEST_PREDEFINED_TOPIC_ID,
+                                  msg_id, empty_topic, topic_id);
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(1500));
+
     std::cout << std::endl;
 }
 
