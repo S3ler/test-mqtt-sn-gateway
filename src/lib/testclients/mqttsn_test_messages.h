@@ -216,7 +216,12 @@ struct test_willtopic {
         if (willtopic_length == 0) {
             length = (uint8_t) (3 + 0);
         } else {
-            length = (uint8_t) (3 + 1) + willtopic_length;
+            uint16_t tmp_length = (3 + 1 + willtopic_length);
+            if (tmp_length > UINT8_MAX) {
+                length = UINT8_MAX;
+            }else{
+                length = (uint8_t) tmp_length;
+            }
         }
 
         type = TEST_MQTTSN_WILLTOPIC;
@@ -253,7 +258,12 @@ struct test_willmsg {
             throw new std::invalid_argument("willmsg longer than UINT16_MAX");
         }
         this->type = TEST_MQTTSN_WILLMSG;
-        this->length = (uint8_t) (2 + willmsg_len);
+        uint16_t tmp_length = (uint16_t) (2 + willmsg_len);
+        if (tmp_length > UINT8_MAX) {
+            this->length = UINT8_MAX;
+        }else{
+            this->length = (uint8_t) tmp_length;
+        }
         memcpy(this->willmsg, willmsg, willmsg_len);
     }
 };

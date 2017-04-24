@@ -309,7 +309,7 @@ TEST_F(LinuxUdpGateway_Connect_Test, Connect_withwill_return_accepted) {
 
     mqtt_sn_sender.send_connect("Mqtt SN Testclient", 60, true, true);
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    std::this_thread::sleep_for(std::chrono::milliseconds(2000));
     std::cout << std::endl;
 }
 
@@ -338,7 +338,7 @@ TEST_F(LinuxUdpGateway_Connect_Test, Connect_withwill_minimumWillTopicLength_ret
 
     mqtt_sn_sender.send_connect("Mqtt SN Testclient", 60, true, true);
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    std::this_thread::sleep_for(std::chrono::milliseconds(2000));
     std::cout << std::endl;
 }
 
@@ -367,7 +367,7 @@ TEST_F(LinuxUdpGateway_Connect_Test, Connect_withwill_maximumWillTopicLength_ret
 
     mqtt_sn_sender.send_connect("Mqtt SN Testclient", 60, true, true);
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    std::this_thread::sleep_for(std::chrono::milliseconds(2000));
     std::cout << std::endl;
 }
 
@@ -440,7 +440,7 @@ TEST_F(LinuxUdpGateway_Connect_Test, Connect_withwill_emptyWillmessageLength_ret
 
     mqtt_sn_sender.send_connect("Mqtt SN Testclient", 60, true, true);
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    std::this_thread::sleep_for(std::chrono::milliseconds(2000));
     std::cout << std::endl;
 }
 
@@ -469,7 +469,7 @@ TEST_F(LinuxUdpGateway_Connect_Test, Connect_withwill_minimumWillmessageLength_r
 
     mqtt_sn_sender.send_connect("Mqtt SN Testclient", 60, true, true);
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    std::this_thread::sleep_for(std::chrono::milliseconds(2000));
     std::cout << std::endl;
 }
 
@@ -498,12 +498,13 @@ TEST_F(LinuxUdpGateway_Connect_Test, Connect_withwill_maximumWillmessageLength_r
 
     mqtt_sn_sender.send_connect("Mqtt SN Testclient", 60, true, true);
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    std::this_thread::sleep_for(std::chrono::milliseconds(2000));
     std::cout << std::endl;
 }
 
 
-TEST_F(LinuxUdpGateway_Connect_Test, Connect_withwill_tooLongWillmessageLength_disconnect) {
+TEST_F(LinuxUdpGateway_Connect_Test, DISABLED_Connect_withwill_tooLongWillmessageLength_disconnect) {
+    // this test cannot be performed, the will message is no char string with null terminator so 255 and any message is a valid will message equal to a will message with the maximum will message size.
 
     test_disconnect expected_disconnect;
     test_willtopicreq expected_willtopicreq;
@@ -528,6 +529,6 @@ TEST_F(LinuxUdpGateway_Connect_Test, Connect_withwill_tooLongWillmessageLength_d
 
     mqtt_sn_sender.send_connect("Mqtt SN Testclient", 60, true, true);
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    std::this_thread::sleep_for(std::chrono::milliseconds(2000));
     std::cout << std::endl;
 }
