@@ -6,15 +6,21 @@ set(CMAKE_CXX_STANDARD 11)
 set(TO_TEST_IMPLEMENTATION_FOLDER linux-mqtt-sn-gateway)
 
 set(TEST_FILES
+
         src/google_test_main_arguments.h
         src/compliance/Publish_Check.cpp
         src/compliance/LinuxUdpGateway_Connect_Test.cpp
         src/compliance/LinuxUdpGateway_Register_Check.cpp
-        src/functional/LinuxUdpGateway_Functional_Subscribe_Check.cpp
         src/compliance/LinuxUdpGateway_Unsubscribe_Check.cpp
         src/compliance/LinuxUdpGateway_SearchGw_Check.cpp
-        src/functional/LinuxUdpGateway_Advertise.cpp
         src/compliance/LinuxUdpGateway_Subscribe_Check.cpp
+
+        src/functional/LinuxUdpGateway_Advertise.cpp
+        src/functional/LinuxUdpGateway_Functional_Subscribe_Check.cpp
+        src/functional/LinuxUdpGateway_Publish.cpp
+        src/functional/LinuxUdpGateway_Sleeping.cpp
+        src/functional/LinuxUdpGateway_Will.cpp
+        src/functional/LinuxUdpGateway_WillUpdate.cpp
         )
 
 add_executable(runAll_Tests ${TEST_FILES})
