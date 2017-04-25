@@ -220,10 +220,8 @@ bool PahoMqttTestMessageHandler::unsubscribe(const char *topic) {
 }
 
 bool PahoMqttTestMessageHandler::receive_publish(char *topic, uint8_t *payload, uint32_t length) {
-    // TODO
     MqttPublish publish((const char *) topic, (const uint8_t *) payload, (uint16_t)length);
     this->receiver->receive(publish);
-    //this->receiver->r
     return false;
 }
 
