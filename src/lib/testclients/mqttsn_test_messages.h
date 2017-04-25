@@ -408,7 +408,12 @@ struct test_register {
         if (topic_name_length == 0) {
             length = (uint8_t) (6 + 0);
         } else {
-            length = (uint8_t) (6 + 1) + topic_name_length;
+            uint16_t tmp_length = (uint16_t) ((6 + 1) + topic_name_length);
+            if (tmp_length > UINT8_MAX) {
+                length = UINT8_MAX;
+            }else{
+                length = (uint8_t) tmp_length;
+            }
         }
 
         type = TEST_MQTTSN_REGISTER;

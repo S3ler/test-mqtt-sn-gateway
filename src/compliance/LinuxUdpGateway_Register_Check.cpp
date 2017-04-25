@@ -344,17 +344,15 @@ TEST_F(LinuxUdpGateway_Register_Check, RegisterTopicName_topicNameTooLong_return
     // 249 characters + 1 byte null-terminator
     const char *topic = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed quis massa mauris. Aenean consectetur urna in libero dignissim mattis. Nunc fermentum blandit consectetur. Nam pulvinar sapien in libero fringilla tincidunt. Orci varius natoque volutpate.";
 
-    uint16_t expected_msg_id = 5;
-    uint16_t expected_topic_id = 1;
-    test_regack expected_regack(expected_topic_id, expected_msg_id, TEST_ACCEPTED);
-    EXPECT_CALL(mqtt_sn_receiver, receive_regack(_)).WillOnce(check_regack(expected_regack));
+    test_disconnect expected_disconnect;
+    EXPECT_CALL(mqtt_sn_receiver, receive_disconnect(_)).WillOnce(check_disconnect(expected_disconnect));
 
     uint16_t msg_id = 5;
     uint16_t topic_id = 0;
     mqtt_sn_sender.send_register(topic_id, msg_id, topic);
 
     // wait until all message are exchanged
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 
     std::cout << std::endl;
 }
