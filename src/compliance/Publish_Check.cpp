@@ -274,3 +274,10 @@ TEST_F(LinuxUdpGateway_Publish_Check, PredefinedTopic_QoS_1_Publish) {
 
     std::cout << std::endl;
 }
+
+TEST_F(LinuxUdpGateway_Publish_Check, PredefinedTopic_QoS_2_Publish) {
+
+    // TODO implement me
+    ASSERT_TRUE(false);
+    std::cout << std::endl;
+}
