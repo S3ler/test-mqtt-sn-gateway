@@ -8,12 +8,14 @@ set(TO_TEST_IMPLEMENTATION_FOLDER linux-mqtt-sn-gateway)
 set(TEST_FILES
 
         src/google_test_main_arguments.h
+
         src/compliance/Publish_Check.cpp
         src/compliance/LinuxUdpGateway_Connect_Test.cpp
         src/compliance/LinuxUdpGateway_Register_Check.cpp
         src/compliance/LinuxUdpGateway_Unsubscribe_Check.cpp
         src/compliance/LinuxUdpGateway_SearchGw_Check.cpp
         src/compliance/LinuxUdpGateway_Subscribe_Check.cpp
+        src/compliance/LinuxUdpGateway_Will_Test.cpp
 
         src/functional/LinuxUdpGateway_Advertise.cpp
         src/functional/LinuxUdpGateway_Functional_Subscribe_Check.cpp
