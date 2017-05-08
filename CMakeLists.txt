@@ -21,7 +21,7 @@ set(TEST_FILES
         src/functional/LinuxUdpGateway_Functional_Subscribe_Check.cpp
         src/functional/LinuxUdpGateway_Publish.cpp
         src/functional/LinuxUdpGateway_Sleeping.cpp
-        src/functional/LinuxUdpGateway_Will.cpp
+        #src/functional/LinuxUdpGateway_Will.cpp
         src/functional/LinuxUdpGateway_WillUpdate.cpp
         )
 
