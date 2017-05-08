@@ -597,3 +597,6 @@ TEST_F(LinuxUdpGateway_Subscribe_Check, Subscribe_ByTopicId_predefined_withRetai
 
     std::cout << std::endl;
 }
+
+// TODO subscribe by topicname to already registered topic
+// TODO subscribe to topic (by any kind) already subscribed (mupltiple times)

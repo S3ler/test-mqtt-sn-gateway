@@ -356,3 +356,7 @@ TEST_F(LinuxUdpGateway_Register_Check, RegisterTopicName_topicNameTooLong_return
 
     std::cout << std::endl;
 }
+
+// TODO multiple registrations to unregistered topics
+// TODO multiple registrations to already registered topics
+// TODO keep registrations after disconnect
