@@ -171,10 +171,10 @@ TEST_F(LinuxUdpGateway_Advertise, Receive_Advertise) {
     uint8_t expected_advertise_duration = 2;
     test_advertise expected_advertise(expected_gw_id, expected_advertise_duration);
 
-    EXPECT_CALL(mqtt_sn_receiver, receive_advertise(_)).Times(2).WillRepeatedly(check_advertise(expected_advertise));
+    EXPECT_CALL(mqtt_sn_receiver, receive_advertise(_)).Times(AtLeast(2)).WillRepeatedly(check_advertise(expected_advertise));
 
     // wait until all message are exchanged
-    std::this_thread::sleep_for(std::chrono::milliseconds(5900));
+    std::this_thread::sleep_for(std::chrono::milliseconds(6000));
 
     std::cout << std::endl;
 }
