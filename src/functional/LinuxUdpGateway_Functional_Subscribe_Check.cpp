@@ -174,7 +174,7 @@ public:
         predefined_topics.push_back(std::string("50 /unsubscribed/client/topic/name"));
         predefined_topics.push_back(std::string("20 /another/predefined/topic"));
         receiver_topics.push_back(std::string("/unsubscribed/client/topic/name"));
-        receiver_topics.push_back(std::string("/register/by/client/topic/name"));
+        // receiver_topics.push_back(std::string("/register/by/client/topic/name"));
 
         create_configuration_files();
         create_predefined_topic();
@@ -790,3 +790,58 @@ TEST_F(LinuxUdpGateway_Functional_Subscribe_Check, Subscribe_QoS2_ByMinTopicId_p
     std::cout << std::endl;
 }
 
+TEST_F(LinuxUdpGateway_Functional_Subscribe_Check, Subscribe_ByTopicId_registered_returnSuback) {
+
+    uint16_t expected_msg_id = 5;
+    uint16_t expected_topic_id = 1;
+    uint8_t expected_qos = 0;
+    test_suback expected_suback(expected_qos, expected_topic_id, expected_msg_id, TEST_ACCEPTED);
+    EXPECT_CALL(mqtt_sn_receiver, receive_suback(_)).WillOnce(check_suback(expected_suback));
+
+    bool expected_dup = false;
+    int8_t expected_publish_qos = 0;
+    bool expected_retain = false;
+    bool expected_short_topic = true;
+    uint8_t expected_publish_topic_id = 1;
+    uint8_t expected_publish_msg_id = 0;
+    const char *expected_payload_char = "some mqtt client payload";
+    const uint8_t *expected_payload = (const uint8_t *) expected_payload_char;
+
+    uint8_t expected_payload_len = (uint8_t) (strlen(expected_payload_char) + 1);
+    test_publish expected_publish(expected_dup, expected_publish_qos, expected_retain,
+                                  expected_short_topic, expected_publish_topic_id,
+                                  expected_publish_msg_id, expected_payload, expected_payload_len);
+
+    EXPECT_CALL(mqtt_sn_receiver, receive_publish(_)).WillOnce(check_publish(expected_publish));
+
+
+    bool dup = false;
+    uint8_t qos = 0;
+    bool retain = false;
+    bool will = false;
+    bool clean_session = false;
+    uint16_t msg_id = 5;
+    const char *empty_topic = "";
+    uint16_t topic_id = 1;
+    mqtt_sn_sender.send_subscribe(dup, qos, retain, will, clean_session, TEST_SHORT_TOPIC_NAME, msg_id, empty_topic, topic_id);
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+    const char *publish_topic = "/register/by/client/topic/name";
+    const char *publish_payload_char = "some mqtt client payload";
+    const uint8_t *publish_payload = (const uint8_t *) publish_payload_char;
+    uint8_t publish_payload_len = (uint8_t) (strlen(publish_payload_char) + 1);
+    uint8_t publish_qos = 0;
+    bool publish_retain = false;
+    mqtt_client.publish(publish_topic, publish_payload, publish_payload_len, publish_qos, publish_retain);
+
+
+    // wait until all message are exchanged
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    std::cout << std::endl;
+}
+
+
+// TOD0 subscribe to registered topics
+
+// TODO subscribe by topic name
