@@ -570,7 +570,33 @@ TEST_F(LinuxUdpGateway_Will, ConnectWithWillDuration90_timeout_WillAfter99receiv
     std::this_thread::sleep_for(std::chrono::milliseconds(after_duration * 1000 + 1000));
     std::cout << std::endl;
 }
+//TODO what happens with empty will message?
 
+// TODO multiple connect to gateway, with will, without will (combinations) test if will is retained or not etc.
+
+// no clean session
+// connect(60, no will) => disconnect => connect(60, will) => timeout => will received
+// connect(60, will1) => disconnect => connect(60, will2) => timeout => will2 received
+// connect(60, will) => disconnect => connect(60, no will) => timeout => no will received
+// connect(60, will) => disconnect => connect(60, no will) => timeout => no will received
+
+// connect(60, will) => disconnect => connect(60, no will) => timeout => no will received
+
+// 6.3 Clean session -
+
+// without prior connect
+// CleanSession=true, Will=true => timeout => will received
+// CleanSession=true, Will=false => timeout => no will received
+// CleanSession=false, Will=true => timeout => will received
+// CleanSession=false, Will=false => timeout => will received
+
+// with prior connect
+// CleanSession=true, Will=true => disconnect/reconnect => CleanSession=true, Will=true => second will received
+// etc
+
+// no will => will update => timeout => will received
+// will => will update => timeout => will update received
+// max / min / empty etc
 // TODO implement will update functional tests
 // TODO implement topic update => new topic received (not old)
 // TODO implement message update => new message received (not old)
