@@ -55,6 +55,10 @@ public:
 
     virtual void receive_unsuback(test_unsuback *pUnsuback)=0;
 
+    virtual void receive_pingreq(test_pingreq *pPingreq)=0;
+
+    virtual void receive_pingresp(test_pingresp *pPingresp)=0;
+
     virtual void receive_any_message(uint16_t length, message_type_test type, uint8_t* data)=0;
 
 };

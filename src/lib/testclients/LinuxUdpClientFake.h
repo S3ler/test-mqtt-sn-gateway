@@ -62,6 +62,17 @@ public:
 
     void send_unsubscribe(topic_id_type_test topic_id_type, uint16_t msg_id, const char *topic_name, uint16_t topic_id);
 
+    void send_disconnect();
+
+    void send_disconnect(uint8_t length);
+
+    void send_disconnect(uint16_t duration, uint8_t length);
+
+    void send_pingreq();
+
+    void send_pingreq(const char* client_id);
+
+    void send_pingreq(const char* client_id, uint8_t length);
 
     void connect(device_address *address);
 
@@ -87,7 +98,6 @@ public:
     MqttSnReceiverInterface *receiver = nullptr;
     std::thread thread;
     device_address *gw_address = nullptr;
-
 
 
 

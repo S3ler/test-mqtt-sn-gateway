@@ -16,4 +16,4 @@ public:
 
 };
 
-// TODO implement tests
+// TODO will neither be implemented in the gateway nor tested

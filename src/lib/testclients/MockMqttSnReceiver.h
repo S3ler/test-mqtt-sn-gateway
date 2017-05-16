@@ -53,6 +53,10 @@ public:
                  void(test_unsubscribe *pUnsubscribe));
     MOCK_METHOD1(receive_unsuback,
                  void(test_unsuback *pUnsuback));
+    MOCK_METHOD1(receive_pingreq,
+                 void(test_pingreq *pPingreq));
+    MOCK_METHOD1(receive_pingresp,
+                 void(test_pingresp *pPingresp));
     MOCK_METHOD3(receive_any_message,
                  void(uint16_t length, message_type_test type, uint8_t* data));
 

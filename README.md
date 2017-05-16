@@ -13,3 +13,7 @@ Modification in gtest main:
         return RUN_ALL_TESTS();
     }
     
+Todo:
+wirte documentation with following points:
+overview: wich tests are made
+and what are the preconditions for each tests, and which tests are overlapping

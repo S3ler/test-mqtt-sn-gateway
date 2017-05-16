@@ -74,6 +74,44 @@ struct test_header {
     message_type_test type;
 };
 
+
+#pragma pack(push, 1)
+
+struct test_pingreq {
+    uint8_t length = 2;
+    message_type_test type = TEST_MQTTSN_PINGREQ;
+};
+
+#pragma pack(pop)
+
+#pragma pack(push, 1)
+
+struct test_pingreq_wakeup {
+    uint8_t length = 2;
+    message_type_test type = TEST_MQTTSN_PINGREQ;
+    char client_id[24];
+
+    test_pingreq_wakeup(const char* client_id){
+        memset(this, 0, sizeof(test_pingreq_wakeup));
+        uint8_t client_id_length = (uint8_t) (strlen(client_id) + 1);
+        this->length = (uint8_t) (2 + client_id_length);
+        this->type = TEST_MQTTSN_PINGREQ;
+        memcpy(this->client_id, client_id, client_id_length);
+    }
+
+};
+
+#pragma pack(pop)
+
+#pragma pack(push, 1)
+
+struct test_pingresp {
+    uint8_t length = 2;
+    message_type_test type = TEST_MQTTSN_PINGRESP;
+};
+
+#pragma pack(pop)
+
 #pragma pack(push, 1)
 
 struct test_advertise {
@@ -175,9 +213,19 @@ struct test_connect {
 struct test_disconnect {
     uint8_t length = 2;
     message_type_test type = TEST_MQTTSN_DISCONNECT;
+    uint16_t duration;
 
     test_disconnect() {
+        memset(this, 0, sizeof(test_disconnect));
+        length = 2;
+        type = TEST_MQTTSN_DISCONNECT;
+    }
 
+    test_disconnect(uint16_t duration){
+        memset(this, 0, sizeof(test_disconnect));
+        length = 2;
+        type = TEST_MQTTSN_DISCONNECT;
+        this->duration = duration;
     }
 };
 

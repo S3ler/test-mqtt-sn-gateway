@@ -190,6 +190,93 @@ void LinuxUdpClientFake::send_unsubscribe(topic_id_type_test topic_id_type, uint
     }
 }
 
+void LinuxUdpClientFake::send_disconnect() {
+    this->send_disconnect(2);
+}
+
+
+void LinuxUdpClientFake::send_disconnect(uint8_t length) {
+    if (this->gw_address == nullptr) {
+        throw new std::invalid_argument("gateway address not set");
+    }
+    if (s == -1) {
+        connect(this->gw_address);
+    }
+
+    test_disconnect msg;
+    msg.length = length;
+
+    if (sendto(s, (const void *) &msg, msg.length, 0, (struct sockaddr *) &si_other, slen) == -1) {
+        std::cout << "sendto()Disconnect" << std::endl;
+    }
+}
+
+void LinuxUdpClientFake::send_disconnect(uint16_t duration, uint8_t length) {
+    if (this->gw_address == nullptr) {
+        throw new std::invalid_argument("gateway address not set");
+    }
+    if (s == -1) {
+        connect(this->gw_address);
+    }
+
+    test_disconnect msg(duration);
+    msg.length = length;
+
+    if (sendto(s, (const void *) &msg, msg.length, 0, (struct sockaddr *) &si_other, slen) == -1) {
+        std::cout << "sendto()Disconnect" << std::endl;
+    }
+}
+
+void LinuxUdpClientFake::send_pingreq() {
+    if (this->gw_address == nullptr) {
+        throw new std::invalid_argument("gateway address not set");
+    }
+    if (s == -1) {
+        connect(this->gw_address);
+    }
+
+    test_pingreq msg;
+
+    if (sendto(s, (const void *) &msg, msg.length, 0, (struct sockaddr *) &si_other, slen) == -1) {
+        std::cout << "sendto()Pingreq" << std::endl;
+    }
+}
+
+void LinuxUdpClientFake::send_pingreq(const char* client_id) {
+    if (this->gw_address == nullptr) {
+        throw new std::invalid_argument("gateway address not set");
+    }
+    if (s == -1) {
+        connect(this->gw_address);
+    }
+
+    test_pingreq_wakeup msg(client_id);
+
+    if (sendto(s, (const void *) &msg, msg.length, 0, (struct sockaddr *) &si_other, slen) == -1) {
+        std::cout << "sendto()Pingreq" << std::endl;
+    }
+}
+
+void LinuxUdpClientFake::/**/send_pingreq(const char *client_id, uint8_t length) {
+    if (this->gw_address == nullptr) {
+        throw new std::invalid_argument("gateway address not set");
+    }
+    if (s == -1) {
+        connect(this->gw_address);
+    }
+
+    test_pingreq_wakeup msg(client_id);
+    msg.length = 2+length;
+
+    if (sendto(s, (const void *) &msg, msg.length, 0, (struct sockaddr *) &si_other, slen) == -1) {
+        std::cout << "sendto()Pingreq" << std::endl;
+    }
+}
+
+
+
+
+
 
 void LinuxUdpClientFake::connect(device_address *address) {
 
@@ -314,17 +401,18 @@ void LinuxUdpClientFake::connect(device_address *address) {
     udp_socket_timeval.tv_usec = 200000;  // 200 ms Timeout
 
 
-    if (setsockopt(socket_descriptor, SOL_SOCKET, SO_RCVTIMEO, (char *) &udp_socket_timeval, sizeof(struct timeval)) == -1) {
+    if (setsockopt(socket_descriptor, SOL_SOCKET, SO_RCVTIMEO, (char *) &udp_socket_timeval, sizeof(struct timeval)) ==
+        -1) {
         exit(1);
 
     }
 
     // save bc address1 as value now
     struct sockaddr_in address1;
-    memset (&address1, 0, sizeof (address1));
+    memset(&address1, 0, sizeof(address1));
     address1.sin_family = AF_INET;
-    address1.sin_addr.s_addr = inet_addr ("224.0.0.0");
-    address1.sin_port = htons (port1);
+    address1.sin_addr.s_addr = inet_addr("224.0.0.0");
+    address1.sin_port = htons(port1);
 
     device_address bc_address1 = this->getDevice_address(&address1);
     memset(&broadcast_address, 0, sizeof(device_address));
@@ -435,21 +523,13 @@ void LinuxUdpClientFake::receive(uint8_t *data, uint16_t length) {
         case TEST_MQTTSN_UNSUBACK:
             this->receiver->receive_unsuback((test_unsuback *) data);
             break;
+        case TEST_MQTTSN_PINGREQ:
+            this->receiver->receive_pingreq((test_pingreq *) data);
+            break;
+        case TEST_MQTTSN_PINGRESP:
+            this->receiver->receive_pingresp((test_pingresp *) data);
+            break;
             /*
-
-           case TEST_MQTTSN_SUBSCRIBE:
-               this->receiver->receive_subscribe((msg_subscribe *) data);
-               break;
-           case TEST_MQTTSN_SUBACK:
-               this->receiver->receive_suback((msg_suback *) data);
-               break;
-
-           case TEST_MQTTSN_PINGREQ:
-               this->receiver->receive_pingreq(header);
-               break;
-           case TEST_MQTTSN_PINGRESP:
-               this->receiver->receive_pingresp(header);
-               break;
            case TEST_MQTTSN_WILLTOPICUPD:
                //this->receiver->receive_willtopicudp((msg_willtopicudp *) data);
                // TODO
@@ -499,3 +579,4 @@ void LinuxUdpClientFake::set_gw_address(device_address *address) {
 void LinuxUdpClientFake::setMqttSnReceiver(MqttSnReceiverInterface *receiverInterface) {
     this->receiver = receiverInterface;
 }
+
