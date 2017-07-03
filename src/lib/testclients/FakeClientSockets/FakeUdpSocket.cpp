@@ -12,8 +12,8 @@ bool FakeUdpSocket::isDisconnected() {
     return s == -1;
 }
 
-ssize_t FakeUdpSocket::send(const uint8_t *buf, size_t len) {
-    return (sendto(s, (const void *) &buf, len, 0, (struct sockaddr *) &si_other, slen) == -1);
+ssize_t FakeUdpSocket::send(const uint8_t *buf, uint8_t len) {
+    return (sendto(s, (const void *) buf, len, 0, (struct sockaddr *) &si_other, slen) == -1);
 }
 
 void FakeUdpSocket::connect(device_address *address) {

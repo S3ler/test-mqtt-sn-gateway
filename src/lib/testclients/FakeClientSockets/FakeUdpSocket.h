@@ -49,7 +49,7 @@ public:
 
     bool isDisconnected() override;
 
-    ssize_t send(const uint8_t *buf, size_t len) override;
+    ssize_t send(const uint8_t *buf, uint8_t len) override;
 
     void connect(device_address *address) override;
 

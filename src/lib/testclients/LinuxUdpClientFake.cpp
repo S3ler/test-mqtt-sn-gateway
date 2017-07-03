@@ -278,6 +278,7 @@ void LinuxUdpClientFake::loop() {
     while (!stopped) {
         fakeSocket->loop();
     }
+    free(fakeSocket);
 }
 
 void LinuxUdpClientFake::start_loop() {
@@ -285,11 +286,11 @@ void LinuxUdpClientFake::start_loop() {
     fakeSocket->setFakeClient(this);
     this->thread = std::thread(&LinuxUdpClientFake::loop, this);
     this->thread.detach();
-    free(fakeSocket);
 }
 
 void LinuxUdpClientFake::stop_loop() {
     this->stopped = true;
+    //this->thread.join();
 }
 
 

@@ -19,7 +19,7 @@ class LinuxUdpClientFake {
 public:
     std::atomic<bool> stopped{false};
 
-    FakeSocketInterface* fakeSocket;
+    FakeSocketInterface* fakeSocket = nullptr;
 public:
 
     void send_searchgw(uint8_t radius);
