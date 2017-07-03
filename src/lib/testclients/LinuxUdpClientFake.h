@@ -3,11 +3,12 @@
 
 
 #include <global_defines.h>
-#include<stdio.h>
-#include<string.h>
-#include<arpa/inet.h>
+#include <stdio.h>
+#include <string.h>
+#include <arpa/inet.h>
 #include "MqttSnReceiverInterface.h"
 #include <atomic>
+#include <thread>
 
 #define BUFLEN 255
 #define PORT 8888
@@ -34,6 +35,8 @@ public:
     std::atomic<bool> stopped{false};
 
 public:
+
+    bool begin();
 
     void send_searchgw(uint8_t radius);
 
@@ -70,9 +73,9 @@ public:
 
     void send_pingreq();
 
-    void send_pingreq(const char* client_id);
+    void send_pingreq(const char *client_id);
 
-    void send_pingreq(const char* client_id, uint8_t length);
+    void send_pingreq(const char *client_id, uint8_t length);
 
     void connect(device_address *address);
 
@@ -98,7 +101,6 @@ public:
     MqttSnReceiverInterface *receiver = nullptr;
     std::thread thread;
     device_address *gw_address = nullptr;
-
 
 
 };

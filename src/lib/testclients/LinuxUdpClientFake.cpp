@@ -442,6 +442,7 @@ void LinuxUdpClientFake::loop() {
 }
 
 void LinuxUdpClientFake::start_loop() {
+    // TODO fakeSocket.setFakeClient(this);
     this->thread = std::thread(&LinuxUdpClientFake::loop, this);
     this->thread.detach();
 }
@@ -578,5 +579,9 @@ void LinuxUdpClientFake::set_gw_address(device_address *address) {
 
 void LinuxUdpClientFake::setMqttSnReceiver(MqttSnReceiverInterface *receiverInterface) {
     this->receiver = receiverInterface;
+}
+
+bool LinuxUdpClientFake::begin() {
+    return false;
 }
 
