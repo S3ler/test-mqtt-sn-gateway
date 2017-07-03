@@ -7,6 +7,8 @@
 
 #include <LinuxUdpClientFake.h>
 
+class LinuxUdpClientFake;
+
 class FakeSocketInterface {
 public:
     virtual void setFakeClient(LinuxUdpClientFake *fakeClient)=0;

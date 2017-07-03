@@ -1,7 +1,7 @@
 #include <iostream>
 #include <zconf.h>
 #include <thread>
-#include "LinuxUdpClientFake.h"
+#include <FakeClientSockets/FakeUdpSocket.h>
 
 
 void LinuxUdpClientFake::send_searchgw(uint8_t radius) {
@@ -442,9 +442,11 @@ void LinuxUdpClientFake::loop() {
 }
 
 void LinuxUdpClientFake::start_loop() {
-    // TODO fakeSocket.setFakeClient(this);
+    fakeSocket = new FakeUdpSocket();
+    fakeSocket->setFakeClient(this);
     this->thread = std::thread(&LinuxUdpClientFake::loop, this);
     this->thread.detach();
+    free(fakeSocket);
 }
 
 void LinuxUdpClientFake::stop_loop() {
@@ -579,9 +581,5 @@ void LinuxUdpClientFake::set_gw_address(device_address *address) {
 
 void LinuxUdpClientFake::setMqttSnReceiver(MqttSnReceiverInterface *receiverInterface) {
     this->receiver = receiverInterface;
-}
-
-bool LinuxUdpClientFake::begin() {
-    return false;
 }
 

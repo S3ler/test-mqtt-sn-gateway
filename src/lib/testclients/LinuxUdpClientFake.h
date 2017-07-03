@@ -9,9 +9,13 @@
 #include "MqttSnReceiverInterface.h"
 #include <atomic>
 #include <thread>
+#include <FakeClientSockets/FakeSocketInterface.h>
+#include <FakeClientSockets/FakeUdpSocket.h>
 
 #define BUFLEN 255
 #define PORT 8888
+
+class FakeUdpSocket;
 
 class LinuxUdpClientFake {
 public:
@@ -34,9 +38,8 @@ public:
 
     std::atomic<bool> stopped{false};
 
+    FakeUdpSocket* fakeSocket;
 public:
-
-    bool begin();
 
     void send_searchgw(uint8_t radius);
 
