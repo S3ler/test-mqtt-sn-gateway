@@ -13,6 +13,8 @@ class FakeSocketInterface {
 public:
     virtual void setFakeClient(LinuxUdpClientFake *fakeClient)=0;
 
+    virtual bool isDisconnected() =0;
+
     virtual ssize_t send(const uint8_t *buf, size_t len)=0;
 
     virtual void connect(device_address *address)=0;

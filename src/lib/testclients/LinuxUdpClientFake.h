@@ -12,33 +12,14 @@
 #include <FakeClientSockets/FakeSocketInterface.h>
 #include <FakeClientSockets/FakeUdpSocket.h>
 
-#define BUFLEN 255
-#define PORT 8888
-
 class FakeUdpSocket;
+class FakeSocketInterface;
 
 class LinuxUdpClientFake {
 public:
-    //const int BUFLEN = 255;
-    struct sockaddr_in si_other, sin;
-    uint16_t fromport = 60000;
-    int timout_seconds = 2;
-    int timout_micro_s = 0;
-    int s = -1, i;
-    socklen_t slen = sizeof(si_other);
-    char buf[BUFLEN];
-    char message[BUFLEN];
-
-    int socket_descriptor;
-
-    device_address address;
-
-    device_address broadcast_address;
-
-
     std::atomic<bool> stopped{false};
 
-    FakeUdpSocket* fakeSocket;
+    FakeSocketInterface* fakeSocket;
 public:
 
     void send_searchgw(uint8_t radius);
@@ -80,9 +61,6 @@ public:
 
     void send_pingreq(const char *client_id, uint8_t length);
 
-    void connect(device_address *address);
-
-    void disconnect();
 
 public:
 
@@ -94,12 +72,12 @@ public:
 
     void receive(uint8_t *data, uint16_t length);
 
-    device_address getDevice_address(sockaddr_in *addr) const;
-
     void set_gw_address(device_address *address);
 
     void setMqttSnReceiver(MqttSnReceiverInterface *receiverInterface);
 
+    FakeSocketInterface* getFakeSocket();
+private:
 
     MqttSnReceiverInterface *receiver = nullptr;
     std::thread thread;

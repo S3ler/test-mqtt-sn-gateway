@@ -165,7 +165,7 @@ ACTION_P(check_advertise, expected) {
 
 TEST_F(LinuxUdpGateway_Advertise, Receive_Advertise) {
 
-    mqtt_sn_sender.connect(&gw_address);
+    mqtt_sn_sender.getFakeSocket()->connect(&gw_address);
 
     uint8_t expected_gw_id = 5;
     uint8_t expected_advertise_duration = 2;

@@ -41,10 +41,13 @@ private:
 
     LinuxUdpClientFake *fakeClient;
 
-    std::atomic<bool> stopped{false};
+    device_address *gw_address = nullptr;
+
 public:
 
     void setFakeClient(LinuxUdpClientFake *fake) override;
+
+    bool isDisconnected() override;
 
     ssize_t send(const uint8_t *buf, size_t len) override;
 
@@ -56,7 +59,6 @@ public:
 
 private:
     device_address getDevice_address(sockaddr_in *addr);
-    bool isConnected();
 
 };
 

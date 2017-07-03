@@ -8,12 +8,11 @@
 #include <iostream>
 #include "FakeUdpSocket.h"
 
-bool FakeUdpSocket::isConnected() {
-    return s != -1;
+bool FakeUdpSocket::isDisconnected() {
+    return s == -1;
 }
 
 ssize_t FakeUdpSocket::send(const uint8_t *buf, size_t len) {
-    if(!isConnected())
     return (sendto(s, (const void *) &buf, len, 0, (struct sockaddr *) &si_other, slen) == -1);
 }
 
@@ -165,7 +164,6 @@ void FakeUdpSocket::disconnect() {
 }
 
 void FakeUdpSocket::loop() {
-    while (!stopped) {
         int recv_len;
         memset(&buf, 0, BUFLEN);
         if ((recv_len = recvfrom(s, buf, BUFLEN, 0, (struct sockaddr *) &si_other, &slen)) != -1) {
@@ -177,7 +175,6 @@ void FakeUdpSocket::loop() {
             device_address client_address = getDevice_address(&si_other);
             fakeClient->receive((uint8_t *) buf, (uint16_t) recv_len);
         }
-    }
 }
 
 device_address FakeUdpSocket::getDevice_address(sockaddr_in *addr) {
