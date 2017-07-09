@@ -12,6 +12,14 @@
 #include <FakeClientSockets/FakeSocketInterface.h>
 #include <FakeClientSockets/FakeUdpSocket.h>
 
+
+#define UDP         1
+#define TCP         2
+#define BLE         3
+#define ZIGBEE      4
+
+
+
 class FakeUdpSocket;
 class FakeSocketInterface;
 

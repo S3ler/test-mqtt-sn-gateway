@@ -1,5 +1,4 @@
 #include <iostream>
-#include <zconf.h>
 #include <thread>
 #include <FakeClientSockets/FakeUdpSocket.h>
 
@@ -282,7 +281,23 @@ void LinuxUdpClientFake::loop() {
 }
 
 void LinuxUdpClientFake::start_loop() {
+#ifdef FakeClientTransmissionProtocol
+
+#if (FakeClientTransmissionProtocol == UDP)
     fakeSocket = new FakeUdpSocket();
+#elif (FakeClientTransmissionProtocol == TCP)
+#error FakeClientTransmissionProtocol TCP not implemented yet
+#elif (FakeClientTransmissionProtocol == BLE)
+#error FakeClientTransmissionProtocol BLE not implemented yet
+#elif (FakeClientTransmissionProtocol == ZIGBEE)
+#error FakeClientTransmissionProtocol ZIGBEE not implemented yet
+#else
+#error No valid FakeClientTransmissionProtocol specified - possible values: UDP, TCP, BLE, ZIGBEE
+#endif
+
+#else
+#error FakeClientTransmissionProtocol not defined
+#endif
     fakeSocket->setFakeClient(this);
     this->thread = std::thread(&LinuxUdpClientFake::loop, this);
     this->thread.detach();

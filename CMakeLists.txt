@@ -4,6 +4,7 @@ project(test-mqtt-sn-gateway)
 set(CMAKE_CXX_STANDARD 11)
           
 set(TO_TEST_IMPLEMENTATION_FOLDER linux-mqtt-sn-gateway)
+add_definitions(-DFakeClientTransmissionProtocol=UDP)
 
 set(TEST_FILES
 
@@ -16,7 +17,7 @@ set(TEST_FILES
         src/compliance/LinuxUdpGateway_SearchGw_Check.cpp
         src/compliance/LinuxUdpGateway_Subscribe_Check.cpp
         src/compliance/LinuxUdpGateway_Pingreq_Test.cpp
-        # src/compliance/LinuxUdpGateway_Will_Test.cpp
+        #src/compliance/LinuxUdpGateway_Will_Test.cpp
 
         src/functional/LinuxUdpGateway_Advertise.cpp
         src/functional/LinuxUdpGateway_Functional_Subscribe_Check.cpp
