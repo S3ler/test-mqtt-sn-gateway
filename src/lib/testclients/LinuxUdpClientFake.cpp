@@ -1,6 +1,7 @@
 #include <iostream>
 #include <thread>
 #include <FakeClientSockets/FakeUdpSocket.h>
+#include <FakeClientSockets/FakeBluetoothLeSocket.h>
 
 
 void LinuxUdpClientFake::send_searchgw(uint8_t radius) {
@@ -288,7 +289,7 @@ void LinuxUdpClientFake::start_loop() {
 #elif (FakeClientTransmissionProtocol == TCP)
 #error FakeClientTransmissionProtocol TCP not implemented yet
 #elif (FakeClientTransmissionProtocol == BLE)
-#error FakeClientTransmissionProtocol BLE not implemented yet
+    fakeSocket = new FakeBluetoothLeSocket();
 #elif (FakeClientTransmissionProtocol == ZIGBEE)
 #error FakeClientTransmissionProtocol ZIGBEE not implemented yet
 #else

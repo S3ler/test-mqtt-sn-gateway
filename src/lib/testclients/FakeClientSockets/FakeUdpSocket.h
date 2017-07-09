@@ -11,12 +11,14 @@
 #include <global_defines.h>
 #include "FakeSocketInterface.h"
 #include <global_defines.h>
-#include<stdio.h>
-#include<string.h>
-#include<arpa/inet.h>
+#include <stdio.h>
+#include <string.h>
+#include <arpa/inet.h>
 #include "MqttSnReceiverInterface.h"
 #include <atomic>
 #include <unistd.h>
+
+class LinuxUdpClientFake;
 
 #define BUFLEN 255
 #define PORT 8888
@@ -45,17 +47,17 @@ private:
 
 public:
 
-    void setFakeClient(LinuxUdpClientFake *fake) override;
+    virtual void setFakeClient(LinuxUdpClientFake *fake);
 
-    bool isDisconnected() override;
+    virtual bool isDisconnected();
 
-    ssize_t send(const uint8_t *buf, uint8_t len) override;
+    virtual ssize_t send(const uint8_t *buf, uint8_t len);
 
-    void connect(device_address *address) override;
+    virtual void connect(device_address *address);
 
-    void disconnect() override;
+    virtual void disconnect();
 
-    void loop() override;
+    virtual void loop();
 
 private:
     device_address getDevice_address(sockaddr_in *addr);

@@ -4,7 +4,7 @@ project(test-mqtt-sn-gateway)
 set(CMAKE_CXX_STANDARD 11)
           
 set(TO_TEST_IMPLEMENTATION_FOLDER linux-mqtt-sn-gateway)
-add_definitions(-DFakeClientTransmissionProtocol=UDP)
+add_definitions(-DFakeClientTransmissionProtocol=BLE)
 
 set(TEST_FILES
 
@@ -50,4 +50,8 @@ add_subdirectory(src/lib/googletest)
 add_subdirectory(src/lib/testclients)
 add_subdirectory(src/implementation/${TO_TEST_IMPLEMENTATION_FOLDER})
 
-target_link_libraries(runAll_Tests lib-${TO_TEST_IMPLEMENTATION_FOLDER} PahoLinuxTestMqttMessageHandler  gtest gtest_main gmock gmock_main)
+target_link_libraries(runAll_Tests
+        lib-${TO_TEST_IMPLEMENTATION_FOLDER}
+        PahoLinuxTestMqttMessageHandler
+        LinuxMqttSnClientFake
+        gtest gtest_main gmock gmock_main)
