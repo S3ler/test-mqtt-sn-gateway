@@ -26,3 +26,11 @@ Todo:
 wirte documentation with following points:
 overview: wich tests are made
 and what are the preconditions for each tests, and which tests are overlapping
+
+Future work: enhance SocketInterface to enable multiple technologies.
+
+enhance device_address to: <Technologie><HardwareIdentifier><Address>
+example-schema for IPv4:<IPv4><UDP|TCP><SocketPort><IP-Address><ConnectionPort>
+example for IPv4 on a UDP Port 8888 with IP-Address 192.168.0.5 and ConnectionPort 9000:
+ { 'I', 'P', 'v', '4', 'U', 'D', 'P', 0x22, 0xB8, 192, 168, 0, 5, 0x24, 0x28 }
+ Of course everything needs to allign in the maximum size schema
