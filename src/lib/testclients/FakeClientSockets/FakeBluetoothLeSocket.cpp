@@ -58,8 +58,10 @@ ssize_t FakeBluetoothLeSocket::send(const uint8_t *buf, uint8_t len) {
         Py_DECREF(pSendReturnValue);
         return len;
     }
-    Py_DECREF(pSendReturnValue);
+    if(pSendReturnValue != NULL){
+        Py_DECREF(pSendReturnValue);
 
+    }
     PyErr_Print();
     // error in python or somethin else
     exit(0);
@@ -73,7 +75,9 @@ void FakeBluetoothLeSocket::connect(device_address *address) {
             // error
             exit(0);
         }
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
+
 }
 
 void FakeBluetoothLeSocket::disconnect() {

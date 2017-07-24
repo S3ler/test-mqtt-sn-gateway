@@ -50,6 +50,10 @@ add_subdirectory(src/lib/googletest)
 add_subdirectory(src/lib/testclients)
 add_subdirectory(src/implementation/${TO_TEST_IMPLEMENTATION_FOLDER})
 
+find_package(PkgConfig REQUIRED)
+pkg_search_module(GLIB REQUIRED glib-2.0)
+include_directories(${GLIB_INCLUDE_DIRS})
+
 target_link_libraries(runAll_Tests
         lib-${TO_TEST_IMPLEMENTATION_FOLDER}
         PahoLinuxTestMqttMessageHandler

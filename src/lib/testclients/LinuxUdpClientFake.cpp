@@ -301,11 +301,14 @@ void LinuxUdpClientFake::start_loop() {
 #endif
     fakeSocket->setFakeClient(this);
     this->thread = std::thread(&LinuxUdpClientFake::loop, this);
-    this->thread.detach();
+    //this->thread.detach();
 }
 
 void LinuxUdpClientFake::stop_loop() {
     this->stopped = true;
+    if(this->thread.joinable()){
+        this->thread.join();
+    }
     //this->thread.join();
 }
 

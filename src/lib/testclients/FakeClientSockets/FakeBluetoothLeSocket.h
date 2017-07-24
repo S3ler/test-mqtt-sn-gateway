@@ -43,7 +43,7 @@ private:
     LinuxUdpClientFake *fakeClient;
 
     // class state:
-    bool initialized = false;
+    volatile bool initialized = false;
 
     PyObject *pName, *pModule, *pDict;
     PyObject *pNUSPeripheralClass, *pNUSPeripheral;
