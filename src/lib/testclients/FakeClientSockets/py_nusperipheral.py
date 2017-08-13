@@ -1,34 +1,15 @@
 #!/usr/bin/python
 
-#
-#  py_nusperipheral - modified file test/example-gatt-client from bluez-5.37 sources
-#
-#  Copyright (C) 2017 - Gabriel Nikol and all bluez authors
-#
-#  This program is free software; you can redistribute it and/or modify
-#  it under the terms of the GNU General Public License as published by
-#  the Free Software Foundation; either version 2 of the License, or
-#  (at your option) any later version.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program; if not, write to the Free Software
-#  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-#
-
-
-
 import dbus
 import dbus.exceptions
 import dbus.mainloop.glib
 import dbus.service
 
+import array
 from gi.repository import GObject as gobject
+# import gobject
 
+from random import randint
 import threading
 
 BATTERY_SERVICE_UUID = '0001'
@@ -131,8 +112,10 @@ class Advertisement(dbus.service.Object):
                          in_signature='s',
                          out_signature='a{sv}')
     def GetAll(self, interface):
+        print 'GetAll'
         if interface != LE_ADVERTISEMENT_IFACE:
             raise InvalidArgsException()
+        print 'returning props'
         return self.get_properties()[LE_ADVERTISEMENT_IFACE]
 
     @dbus.service.method(LE_ADVERTISEMENT_IFACE,
@@ -145,15 +128,14 @@ class Advertisement(dbus.service.Object):
 class NUSAdvertisment(Advertisement):
     def __init__(self, bus, index):
         Advertisement.__init__(self, bus, index, 'peripheral')
-        self.add_service_uuid(BATTERY_SERVICE_UUID)
-        self.add_manufacturer_data(0xffff, [0x00, 0x01, 0x02, 0x03, 0x04])
-        self.add_service_data('9999', [0x00, 0x01, 0x02, 0x03, 0x04])
+        #self.add_service_uuid(BATTERY_SERVICE_UUID)
+        #self.add_manufacturer_data(0xffff, [0x00, 0x01, 0x02, 0x03, 0x04])
+        #self.add_service_data('9999', [0x00, 0x01, 0x02, 0x03, 0x04])
         self.include_tx_power = True
 
 
 def register_ad_cb():
-    # print 'Advertisement registered'
-    return
+    print 'Advertisement registered'
 
 
 def register_ad_error_cb(error):
@@ -210,6 +192,7 @@ class Service(dbus.service.Object):
     @dbus.service.method(DBUS_OM_IFACE, out_signature='a{oa{sa{sv}}}')
     def GetManagedObjects(self):
         response = {}
+        print('GetManagedObjects')
 
         response[self.get_path()] = self.get_properties()
         chrcs = self.get_characteristics()
@@ -347,7 +330,7 @@ class NUSService(Service):
     TEST_SVC_UUID = '6E400001-B5A3-F393-E0A9-E50E24DCCA9E'
 
     def __init__(self, bus, index):
-        Service.__init__(self, bus, index, self.TEST_SVC_UUID, False)
+        Service.__init__(self, bus, index, self.TEST_SVC_UUID, True)
         self.add_characteristic(RXCharacteristic(bus, 0, self))
         self.tx_characteristc = TXCharacteristic(bus, 1, self)
         self.add_characteristic(self.tx_characteristc)
@@ -361,16 +344,16 @@ class TXCharacteristic(Characteristic):
     TODO: fill description
     """
 
-    TX_CHRC_UUID = '6E400002-B5A3-F393-E0A9-E50E24DCCA9E'
+    TX_CHRC_UUID = '6E400003-B5A3-F393-E0A9-E50E24DCCA9E'
 
     def __init__(self, bus, index, service):
         Characteristic.__init__(
             self, bus, index,
             self.TX_CHRC_UUID,
-            ['read', 'notify'],
+            ['notify'],
             service)
         self.notifying = False
-        self.tx_bytes = 0
+        self.tx_bytes = []
         # gobject.timeout_add(5000, self.send_hello)
 
     def notify_tx_bytes(self):
@@ -395,7 +378,7 @@ class TXCharacteristic(Characteristic):
         return True
 
     def ReadValue(self):
-        # print('TX Bytes read: ' + repr(self.tx_bytes))
+        print('TX Bytes read: ' + repr(self.tx_bytes))
         return dbus.ByteArray(self.tx_bytes)
 
     def StartNotify(self):
@@ -421,18 +404,21 @@ class RXCharacteristic(Characteristic):
 
     # TX Characteristic (UUID: 6E400002-B5A3-F393-E0A9-E50E24DCCA9E):
     # RX Characteristic (UUID: 6E400003-B5A3-F393-E0A9-E50E24DCCA9E):
-    RX_CHRC_UUID = '6E400003-B5A3-F393-E0A9-E50E24DCCA9E'
+    RX_CHRC_UUID = '6E400002-B5A3-F393-E0A9-E50E24DCCA9E'
+
+    #                ['write','writable-auxiliaries'],
 
     def __init__(self, bus, index, service):
         Characteristic.__init__(
             self, bus, index,
             self.RX_CHRC_UUID,
-            ['write', 'writable-auxiliaries'],
+            ['write'],
             service)
-        self.rx_bytes = None
+        self.rx_bytes = []
 
     def ReadValue(self):
         print('RX Bytes read: ' + repr(self.rx_bytes))
+        # return self.rx_bytes
         return self.value
 
     def WriteValue(self, value):
@@ -440,12 +426,15 @@ class RXCharacteristic(Characteristic):
         global newMessage
         newMessageArrived = True
         newMessage = bytearray(value)
+        print('RX Write: ' + repr(value))
+        print((repr(self.get_properties())))
         self.value = value
+
+        # self.rx_bytes = value
 
 
 def register_service_cb():
-    # print('GATT service registered')
-    return
+    print('GATT service registered')
 
 
 def register_service_error_cb(error):
@@ -465,7 +454,25 @@ def find_adapter(bus, adapter):
     return None
 
 
+def send_user_input(c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c13, c14, c15, c16, c17, c18, c19, length):
+    to_send_buffer = bytearray([c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c13, c14, c15, c16, c17, c18, c19])
+    to_send_length = length
+    to_send_buffer = to_send_buffer[0:to_send_length]
+    return nus_service.send_bytes(to_send_buffer)
+
+
+def run_mainloop():
+    mainloop.run()
+
+
 def init():
+    import os
+    print os.name
+    import platform
+    print platform.system()
+    print platform.release()
+    print platform.python_implementation()  # need to be CPython!
+
     global mainloop
     global nus_service
 
@@ -517,14 +524,14 @@ def is_new_message_arrived():
     return newMessageArrived
 
 
-class NUSPeripheral(threading.Thread):
+class MyThread(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
 
     def run(self):
         init()
 
-    def send_user_input(self, c0, c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c13, c14, c15, c16, c17, c18, c19,
+    def send_user_input(self,c0, c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c13, c14, c15, c16, c17, c18, c19,
                         length):
         global nus_service
         to_send_buffer = bytearray(
