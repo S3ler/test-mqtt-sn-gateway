@@ -1,10 +1,21 @@
 cmake_minimum_required(VERSION 3.6)
 project(test-mqtt-sn-gateway)
 
-set(CMAKE_CXX_STANDARD 11)
-          
+set(CMAKE_CXX_STANDARD 14)
+
+# thank you: https://stackoverflow.com/questions/38515316/how-to-configure-dbus-dependencies-with-cmake
+set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
+find_package(DBus REQUIRED)
+include_directories(${DBUS_INCLUDE_DIRS})
+
+pkg_search_module(GLIB REQUIRED glib-2.0)
+include_directories(${GLIB_INCLUDE_DIRS})
+
+
 set(TO_TEST_IMPLEMENTATION_FOLDER linux-mqtt-sn-gateway)
-add_definitions(-DFakeClientTransmissionProtocol=BLE)
+
+
+add_definitions(-DFakeClientTransmissionProtocol=FakeClientTransmissionProtocol_BLE)
 
 set(TEST_FILES
 
@@ -53,6 +64,7 @@ add_subdirectory(src/implementation/${TO_TEST_IMPLEMENTATION_FOLDER})
 find_package(PkgConfig REQUIRED)
 pkg_search_module(GLIB REQUIRED glib-2.0)
 include_directories(${GLIB_INCLUDE_DIRS})
+include_directories(src/implementation/${TO_TEST_IMPLEMENTATION_FOLDER}/src/Implementation/Ble/SimpleBluetoothLowEnergySocket/libBLE/)
 
 target_link_libraries(runAll_Tests
         lib-${TO_TEST_IMPLEMENTATION_FOLDER}

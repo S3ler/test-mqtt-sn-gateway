@@ -1,4 +1,4 @@
-#!/usr/bin/python0
+#!/usr/bin/python
 
 import dbus
 import dbus.exceptions
@@ -18,7 +18,7 @@ mainloop = None
 nus_service = None
 
 BLUEZ_SERVICE_NAME = 'org.bluez'
-LE_ADAPTER = '/org/bluez/hci2'
+LE_ADAPTER = '/org/bluez/hci0'
 LE_ADVERTISING_MANAGER_IFACE = 'org.bluez.LEAdvertisingManager1'
 DBUS_OM_IFACE = 'org.freedesktop.DBus.ObjectManager'
 DBUS_PROP_IFACE = 'org.freedesktop.DBus.Properties'

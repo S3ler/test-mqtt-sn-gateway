@@ -12,10 +12,10 @@
 #include <FakeClientSockets/FakeSocketInterface.h>
 
 
-#define UDP         1
-#define TCP         2
-#define BLE         3
-#define ZIGBEE      4
+#define FakeClientTransmissionProtocol_UDP         1
+#define FakeClientTransmissionProtocol_TCP         2
+#define FakeClientTransmissionProtocol_BLE         3
+#define FakeClientTransmissionProtocol_ZIGBEE      4
 
 
 

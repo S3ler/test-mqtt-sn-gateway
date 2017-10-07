@@ -193,7 +193,7 @@ TEST_F(LinuxUdpGateway_Connect_Test, Connect_withminimumclientidsize_return_acce
     EXPECT_CALL(mqtt_sn_receiver, receive_connack(_)).WillOnce(check_connack(expected_connack));
     mqtt_sn_sender.send_connect("M", 60, false, false);
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    std::this_thread::sleep_for(std::chrono::milliseconds(30000));
     std::cout << std::endl;
 }
 

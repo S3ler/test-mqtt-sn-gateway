@@ -75,7 +75,7 @@ void FakeBluetoothLeSocket::connect(device_address *address) {
             // error
             exit(0);
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+        std::this_thread::sleep_for(std::chrono::milliseconds(5000));
     }
 
 }
@@ -144,6 +144,7 @@ bool FakeBluetoothLeSocket::begin() {
         return false;
     }
 
+    // works because the PyObject is a Thread
     PyObject *pStartReturnValue = PyObject_CallMethod(pNUSPeripheral, PYTHON_PERIPHERAL_START_METHODNAME, NULL);
     if (pStartReturnValue == NULL) {
         // PyErr_Print();
@@ -184,7 +185,7 @@ void FakeBluetoothLeSocket::join_pythread() {
     PyObject *pReceiveReturnValue = NULL;
 
     // !!!Important!!! C thread will not release CPU to Python thread without the following call.
-    pReceiveReturnValue = PyObject_CallMethod(pNUSPeripheral, "join", "(f)", 0.001);
+    pReceiveReturnValue = PyObject_CallMethod(pNUSPeripheral, "join", "(f)", 0.005);
 
     if (pReceiveReturnValue == NULL) {
         PyErr_Print();

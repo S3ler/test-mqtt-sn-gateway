@@ -284,13 +284,13 @@ void LinuxUdpClientFake::loop() {
 void LinuxUdpClientFake::start_loop() {
 #ifdef FakeClientTransmissionProtocol
 
-#if (FakeClientTransmissionProtocol == UDP)
+#if (FakeClientTransmissionProtocol == FakeClientTransmissionProtocol_UDP)
     fakeSocket = new FakeUdpSocket();
-#elif (FakeClientTransmissionProtocol == TCP)
+#elif (FakeClientTransmissionProtocol == FakeClientTransmissionProtocol_TCP)
 #error FakeClientTransmissionProtocol TCP not implemented yet
-#elif (FakeClientTransmissionProtocol == BLE)
+#elif (FakeClientTransmissionProtocol == FakeClientTransmissionProtocol_BLE)
     fakeSocket = new FakeBluetoothLeSocket();
-#elif (FakeClientTransmissionProtocol == ZIGBEE)
+#elif (FakeClientTransmissionProtocol == FakeClientTransmissionProtocol_ZIGBEE)
 #error FakeClientTransmissionProtocol ZIGBEE not implemented yet
 #else
 #error No valid FakeClientTransmissionProtocol specified - possible values: UDP, TCP, BLE, ZIGBEE
@@ -301,7 +301,7 @@ void LinuxUdpClientFake::start_loop() {
 #endif
     fakeSocket->setFakeClient(this);
     this->thread = std::thread(&LinuxUdpClientFake::loop, this);
-    //this->thread.detach();
+    this->thread.detach();
 }
 
 void LinuxUdpClientFake::stop_loop() {
