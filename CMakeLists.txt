@@ -28,16 +28,15 @@ set(TEST_FILES
         src/compliance/LinuxUdpGateway_SearchGw_Check.cpp
         src/compliance/LinuxUdpGateway_Subscribe_Check.cpp
         src/compliance/LinuxUdpGateway_Pingreq_Test.cpp
-        #src/compliance/LinuxUdpGateway_Will_Test.cpp
+        #src/compliance/LinuxUdpGateway_WillUpdate_Test.cpp
 
         src/functional/LinuxUdpGateway_Advertise.cpp
         src/functional/LinuxUdpGateway_Functional_Subscribe_Check.cpp
         src/functional/LinuxUdpGateway_Publish.cpp
-        src/functional/LinuxUdpGateway_Sleeping.cpp
-        #src/functional/LinuxUdpGateway_Will.cpp
-        src/functional/LinuxUdpGateway_WillUpdate.cpp
+        src/functional/LinuxUdpGateway_Will.cpp
+        #src/functional/LinuxUdpGateway_WillUpdate.cpp
         src/compliance/LinuxUdpGateway_Disconnect_Test.cpp
-        src/functional/LinuxUdpGateway-Functional_Disconnect.cpp
+        #src/functional/LinuxUdpGateway-Functional_Disconnect.cpp
         src/functional/LinuxUdpGateway_Sleep.cpp
         src/functional/LinuxUdpGateway_Function_Connect.cpp)
 
