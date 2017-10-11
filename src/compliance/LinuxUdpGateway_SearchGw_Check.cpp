@@ -40,7 +40,8 @@ public:
     std::list<std::string> predefined_topics;
     std::list<std::string> receiver_topics;
 
-    uint8_t expected_gw_addr[6] = {192,168,178,33,184,0};
+    // TODO this need to be changed change manually at the moment
+    uint8_t expected_gw_addr[6] = {192,168,178,82,184,0};
     uint8_t expected_gw_addr_len = 6;
 
     void stop_broker() {
