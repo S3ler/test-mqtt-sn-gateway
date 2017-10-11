@@ -360,12 +360,12 @@ TEST_F(LinuxUdpGateway_Pingreq_Test, UnconnectedClient_PingRequestWithInvalidLen
     std::cout << std::endl;
 }
 
-TEST_F(LinuxUdpGateway_Pingreq_Test, ConnectedClient_PingRequestWithValidClientId_ReceivesDisconnect) {
+TEST_F(LinuxUdpGateway_Pingreq_Test, ConnectedClient_PingRequestWithValidClientId_ReceivesPingreq) {
 
     connect_mqtt_sn_client();
 
-    test_disconnect expected_disconnect;
-    EXPECT_CALL(mqtt_sn_receiver, receive_disconnect(_)).WillOnce(check_disconnect(expected_disconnect));
+    test_pingresp expected_pingresp;
+    EXPECT_CALL(mqtt_sn_receiver, receive_pingresp(_)).WillOnce(check_pingresp(expected_pingresp));
 
     const char *client_id = "Mqtt SN Testclient";
     mqtt_sn_sender.send_pingreq(client_id);
