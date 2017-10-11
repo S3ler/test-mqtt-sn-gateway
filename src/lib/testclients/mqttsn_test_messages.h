@@ -520,6 +520,9 @@ struct test_subscribe {
         } else if (topic_id_type == TEST_PREDEFINED_TOPIC_ID || topic_id_type == TEST_SHORT_TOPIC_NAME) {
             to_copy_length = 2;
             this->length = (uint8_t) (5 + 0 + to_copy_length);
+        }else {
+            to_copy_length = 2;
+            this->length = (uint8_t) (5 + 0 + to_copy_length);
         }
 
         this->type = TEST_MQTTSN_SUBSCRIBE;
