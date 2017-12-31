@@ -11,7 +11,7 @@
 #include <thread>
 #include <FakeClientSockets/FakeSocketInterface.h>
 
-
+#define FakeClientTransmissionProtocol_SERIAL      0
 #define FakeClientTransmissionProtocol_UDP         1
 #define FakeClientTransmissionProtocol_TCP         2
 #define FakeClientTransmissionProtocol_BLE         3

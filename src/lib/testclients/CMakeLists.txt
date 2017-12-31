@@ -45,6 +45,8 @@ set(FAKESOCKET_SOURCE_FILES
         FakeClientSockets/FakeUdpSocket.cpp
         FakeClientSockets/FakeBluetoothLeSocket.h
         FakeClientSockets/FakeBluetoothLeSocket.cpp
+        FakeClientSockets/FakeSerialSocket.h
+        FakeClientSockets/FakeSerialSocket.cpp
         )
 
 # TODO add python dynamically instead of this hard coded include_directories

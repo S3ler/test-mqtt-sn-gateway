@@ -15,7 +15,7 @@ include_directories(${GLIB_INCLUDE_DIRS})
 set(TO_TEST_IMPLEMENTATION_FOLDER linux-mqtt-sn-gateway)
 
 
-add_definitions(-DFakeClientTransmissionProtocol=FakeClientTransmissionProtocol_UDP)
+add_definitions(-DFakeClientTransmissionProtocol=FakeClientTransmissionProtocol_SERIAL)
 
 set(TEST_FILES
 

@@ -2,6 +2,7 @@
 #include <thread>
 #include <FakeClientSockets/FakeUdpSocket.h>
 #include <FakeClientSockets/FakeBluetoothLeSocket.h>
+#include <FakeClientSockets/FakeSerialSocket.h>
 
 
 void LinuxUdpClientFake::send_searchgw(uint8_t radius) {
@@ -284,7 +285,9 @@ void LinuxUdpClientFake::loop() {
 void LinuxUdpClientFake::start_loop() {
 #ifdef FakeClientTransmissionProtocol
 
-#if (FakeClientTransmissionProtocol == FakeClientTransmissionProtocol_UDP)
+#if (FakeClientTransmissionProtocol == FakeClientTransmissionProtocol_SERIAL)
+    fakeSocket = new FakeSerialSocket();
+#elif (FakeClientTransmissionProtocol == FakeClientTransmissionProtocol_UDP)
     fakeSocket = new FakeUdpSocket();
 #elif (FakeClientTransmissionProtocol == FakeClientTransmissionProtocol_TCP)
 #error FakeClientTransmissionProtocol TCP not implemented yet
