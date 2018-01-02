@@ -80,6 +80,7 @@ void FakeSerialSocket::loop() {
     usleep(500);
 }
 
+// FROM: https://stackoverflow.com/questions/6947413/how-to-open-read-and-write-from-serial-port-in-c Date: 30.12.207
 int FakeSerialSocket::set_interface_attribs(int fd, int speed, int parity) {
     struct termios tty;
     memset(&tty, 0, sizeof tty);
@@ -117,6 +118,7 @@ int FakeSerialSocket::set_interface_attribs(int fd, int speed, int parity) {
     return 0;
 }
 
+// FROM: https://stackoverflow.com/questions/6947413/how-to-open-read-and-write-from-serial-port-in-c Date: 30.12.207
 void FakeSerialSocket::set_blocking(int fd, int should_block) {
     struct termios tty;
     memset(&tty, 0, sizeof tty);
