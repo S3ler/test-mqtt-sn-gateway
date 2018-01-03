@@ -76,7 +76,6 @@ void FakeSerialSocket::loop() {
             fakeClient->receive(data, data_length);
         }
     }
-
     usleep(500);
 }
 
@@ -197,7 +196,7 @@ void FakeSerialSocket::sendAddress(device_address address) {
 }
 
 void FakeSerialSocket::sendData(const uint8_t *buf, uint8_t len) {
-    write(fd, "DATA\n", 8);
+    write(fd, "DATA", 4);
     for (uint16_t i = 0; i < len; i++) {
         write(fd, " ", 1);
         std::string s = std::to_string(buf[i]);
@@ -223,12 +222,13 @@ void FakeSerialSocket::readSendAddress() {
         // TODO overflow
     }
 
+
     char *token = strsep(&buffer_p, " ");
     if (token == NULL) {
         memset(&from_address, 0x0, sizeof(device_address));
         return;
     }
-    if (memcmp(token, "DATA", strlen("ADDRESS")) != 0) {
+    if (memcmp(token, "ADDRESS", strlen("ADDRESS")) != 0) {
         memset(&from_address, 0x0, sizeof(device_address));
         return;
     }
