@@ -234,6 +234,7 @@ public:
         uint16_t msg_id = 5;
         uint16_t topic_id = 0;
         mqtt_sn_sender.send_register(topic_id, msg_id, topic);
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
     }
 
@@ -267,11 +268,28 @@ TEST_F(LinuxUdpGateway_Pingreq_Test, UnconnectedClient_PingRequest_ReceivesPingr
     test_pingresp expected_pingresp;
     EXPECT_CALL(mqtt_sn_receiver, receive_pingresp(_)).WillOnce(check_pingresp(expected_pingresp));
 
-    mqtt_sn_sender.send_pingreq();
 
+    mqtt_sn_sender.send_pingreq();
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
     std::cout << std::endl;
 }
+
+TEST_F(LinuxUdpGateway_Pingreq_Test, UnconnectedClient_MultiplePingRequest_ReceivesMultiplePingresp) {
+
+    test_pingresp expected_pingresp;
+    EXPECT_CALL(mqtt_sn_receiver, receive_pingresp(_)).Times(3).WillRepeatedly(check_pingresp(expected_pingresp));
+
+    mqtt_sn_sender.send_pingreq();
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    mqtt_sn_sender.send_pingreq();
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    mqtt_sn_sender.send_pingreq();
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+    std::cout << std::endl;
+}
+
 
 TEST_F(LinuxUdpGateway_Pingreq_Test, ConnectedClient_PingRequest_ReceivesPingresp) {
 
