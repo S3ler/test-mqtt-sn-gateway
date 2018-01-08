@@ -60,6 +60,9 @@ void FakeSerialSocket::loop() {
         return;
     }
 
+    memset(&from_address, 0x0, sizeof(device_address));
+    memset(data, 0x0, sizeof(data));
+
     if(fd > 0){
         std::lock_guard<std::mutex> lock(mutex);
 
@@ -69,12 +72,12 @@ void FakeSerialSocket::loop() {
         waitForOkSendData();
         readData();
         waitForOKIdle();
-        if (memcmp(&from_address, &address, sizeof(device_address)) == 0) {
-            fakeClient->receive(data, data_length);
-        }
-        if (memcmp(&broadcast_address, &address, sizeof(device_address)) == 0) {
-            fakeClient->receive(data, data_length);
-        }
+    }
+    if (memcmp(&from_address, &address, sizeof(device_address)) == 0) {
+        fakeClient->receive(data, data_length);
+    }
+    if (memcmp(&broadcast_address, &address, sizeof(device_address)) == 0) {
+        fakeClient->receive(data, data_length);
     }
     usleep(500);
 }
