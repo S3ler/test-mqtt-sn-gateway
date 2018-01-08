@@ -230,7 +230,7 @@ TEST_F(LinuxUdpGateway_Will, ConnectWithWillDuration60_timeout_WillAfter90receiv
     std::vector<uint8_t> data_vector;
     std::copy(data_string.begin(), data_string.end(), std::back_inserter(data_vector));
     data_vector.push_back('\0');
-https://forum.golem.de/kommentare/wirtschaft/stellenmarkt-it-profis-haben-zu-hohe-gehaltsvorstellungen/mein-jahresbrutto-35k-brutto/109305,4807780,page=2,read.html#msg-0
+
     EXPECT_CALL(mqtt_receiver, receive(AllOf(Field(&MqttPublish::data, data_vector),
                                              Field(&MqttPublish::topic, topic))));
 
