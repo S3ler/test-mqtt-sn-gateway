@@ -85,7 +85,11 @@ public:
 
     void start_broker() {
         stop_broker();
+#if defined(__arm__)
+        std::string command = "docker run -d --name test-broker -p 1884:1883 fstehle/rpi-mosquitto 2> /dev/null 1> /dev/null";
+#else
         std::string command = "docker run -d --name test-broker -p 1884:1883 jllopis/mosquitto:v1.4.10 2> /dev/null 1> /dev/null";
+#endif
         std::system(command.c_str());
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
