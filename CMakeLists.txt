@@ -15,10 +15,16 @@ include_directories(${GLIB_INCLUDE_DIRS})
 endif(${BUILD_BLE})
 
 
+set(BUILD_RPI ON)
+if(${BUILD_RPI})
+#target_compile_definitions(lib-linux-mqtt-sn-gateway PRIVATE -DRH_PLATFORM=RH_PLATFORM_RASPI)
+add_definitions(-DRH_PLATFORM=RH_PLATFORM_RASPI)
+endif(${BUILD_RPI})
+
 set(TO_TEST_IMPLEMENTATION_FOLDER linux-mqtt-sn-gateway)
 
-add_definitions(-DGATEWAY_TRANSMISSION_PROTOCOL_UDP)
-add_definitions(-DFakeClientTransmissionProtocol=FakeClientTransmissionProtocol_UDP)
+add_definitions(-DGATEWAY_TRANSMISSION_PROTOCOL_RASPBERRY_RH_NRF24)
+add_definitions(-DFakeClientTransmissionProtocol=FakeClientTransmissionProtocol_SERIAL)
 
 set(TEST_FILES
 
@@ -56,7 +62,11 @@ include_directories(src/implementation/linux-mqtt-sn-gateway/src/Implementation)
 include_directories(src/implementation/linux-mqtt-sn-gateway/src/Implementation/paho/pahomqttembeddedc/MQTTClient/src/linux)
 include_directories(src/implementation/linux-mqtt-sn-gateway/src/Implementation/paho/pahomqttembeddedc/MQTTClient/src/)
 include_directories(src/implementation/linux-mqtt-sn-gateway/src/Implementation/paho/pahomqttembeddedc/MQTTPacket/src)
-
+if(${BUILD_RPI})
+include_directories(src/implementation/linux-mqtt-sn-gateway/src/Implementation/mqtt-sn-sockets)
+include_directories(src/implementation/linux-mqtt-sn-gateway/src/Implementation/mqtt-sn-sockets/RadioHead)
+include_directories(src/implementation/linux-mqtt-sn-gateway/src/Implementation/mqtt-sn-sockets/RadioHead/RHutil)
+endif(${BUILD_RPI})
 
 
 add_subdirectory(src/lib/googletest)
@@ -74,4 +84,4 @@ target_link_libraries(runAll_Tests
         lib-${TO_TEST_IMPLEMENTATION_FOLDER}
         PahoLinuxTestMqttMessageHandler
         LinuxMqttSnClientFake
-        gtest gtest_main gmock gmock_main)
+        gtest gtest_main gmock gmock_main lib-rh-nrf24-socket bcm2835)

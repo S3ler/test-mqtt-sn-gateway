@@ -18,3 +18,13 @@ MQTT.SUB
 CLIENTS
 MQTT.CON
 TOPICS.PRE
+
+runAll_Tests
+test-mqtt-sn-gateway.layout
+
+*.PUB
+*.REG
+*.SUB
+*.WIL
+*.CON
+
