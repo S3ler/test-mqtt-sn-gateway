@@ -15,16 +15,23 @@ include_directories(${GLIB_INCLUDE_DIRS})
 endif(${BUILD_BLE})
 
 
-set(BUILD_RPI ON)
+set(BUILD_RPI OFF)
 if(${BUILD_RPI})
 #target_compile_definitions(lib-linux-mqtt-sn-gateway PRIVATE -DRH_PLATFORM=RH_PLATFORM_RASPI)
 add_definitions(-DRH_PLATFORM=RH_PLATFORM_RASPI)
 endif(${BUILD_RPI})
 
+set(BUILD_LORA ON)
+if(${BUILD_LORA})
+add_definitions(-DRH_PLATFORM=RH_PLATFORM_RPI)
+endif(${BUILD_LORA})
+
 set(TO_TEST_IMPLEMENTATION_FOLDER linux-mqtt-sn-gateway)
 
-add_definitions(-DGATEWAY_TRANSMISSION_PROTOCOL_RASPBERRY_RH_NRF24)
+add_definitions(-DGATEWAY_TRANSMISSION_PROTOCOL_RASPBERRY_RH_RF95)
+#add_definitions(-DGATEWAY_TRANSMISSION_PROTOCOL_UDP)
 add_definitions(-DFakeClientTransmissionProtocol=FakeClientTransmissionProtocol_SERIAL)
+#add_definitions(-DFakeClientTransmissionProtocol=FakeClientTransmissionProtocol_UDP)
 
 set(TEST_FILES
 
@@ -47,7 +54,8 @@ set(TEST_FILES
         src/compliance/LinuxUdpGateway_Disconnect_Test.cpp
         #src/functional/LinuxUdpGateway-Functional_Disconnect.cpp
         src/functional/LinuxUdpGateway_Sleep.cpp
-        src/functional/LinuxUdpGateway_Function_Connect.cpp)
+        src/functional/LinuxUdpGateway_Function_Connect.cpp
+)
 
 add_executable(runAll_Tests ${TEST_FILES})
 
@@ -67,6 +75,11 @@ include_directories(src/implementation/linux-mqtt-sn-gateway/src/Implementation/
 include_directories(src/implementation/linux-mqtt-sn-gateway/src/Implementation/mqtt-sn-sockets/RadioHead)
 include_directories(src/implementation/linux-mqtt-sn-gateway/src/Implementation/mqtt-sn-sockets/RadioHead/RHutil)
 endif(${BUILD_RPI})
+if(${BUILD_LORA})
+include_directories(src/implementation/linux-mqtt-sn-gateway/src/Implementation/mqtt-sn-sockets)
+include_directories(src/implementation/linux-mqtt-sn-gateway/src/Implementation/mqtt-sn-sockets/RadioHeadRpi)
+#include_directories(src/implementation/linux-mqtt-sn-gateway/src/Implementation/mqtt-sn-sockets/RadioHeadRpi/RHutil)
+endif(${BUILD_LORA})
 
 
 add_subdirectory(src/lib/googletest)
@@ -80,8 +93,16 @@ include_directories(${GLIB_INCLUDE_DIRS})
 include_directories(src/implementation/${TO_TEST_IMPLEMENTATION_FOLDER}/src/Implementation/Ble/SimpleBluetoothLowEnergySocket/libBLE/)
 endif(${BUILD_BLE})
 
+if(${BUILD_RPI})
+target_link_libraries(runAll_Tests lib-rh-nrf24-socket bcm2835)
+endif(${BUILD_RPI})
+
+if(${BUILD_LORA})
+target_link_libraries(runAll_Tests lib-rh96-socket wiringPi)
+endif(${BUILD_LORA})
+
 target_link_libraries(runAll_Tests
         lib-${TO_TEST_IMPLEMENTATION_FOLDER}
         PahoLinuxTestMqttMessageHandler
         LinuxMqttSnClientFake
-        gtest gtest_main gmock gmock_main lib-rh-nrf24-socket bcm2835)
+        gtest gtest_main gmock gmock_main)
