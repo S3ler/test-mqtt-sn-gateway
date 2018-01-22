@@ -436,7 +436,7 @@ public:
 #if (FakeClientTransmissionProtocol == FakeClientTransmissionProtocol_UDP)
         uint8_t expected_gw_addr[6] = {0, 0, 0, 0, 0, 0};
 #else
-        uint8_t expected_gw_addr[6] = {127, 0, 0, 1, 0, 0};
+        uint8_t expected_gw_addr[6] = {127, 0, 0, 0, 0, 0};
 #endif
 
         uint8_t expected_gw_addr_len = 6;
