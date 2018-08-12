@@ -7,6 +7,9 @@ install_manifest.txt
 CTestTestfile.cmake
 
 cmake-build-debug/*
+cmake-build-debug/googletest-src/googletest/src/
+cmake-build-debug/googletest-src/googletest/src/gtest_main.cc
+
 *~
 .idea/*
 *.cbp
