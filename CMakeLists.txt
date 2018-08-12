@@ -3,6 +3,54 @@ project(test-mqtt-sn-gateway)
 
 set(CMAKE_CXX_STANDARD 14)
 
+# see: https://github.com/google/googletest/tree/master/googletest#incorporating-into-an-existing-cmake-project
+# Download and unpack googletest at configure time
+configure_file(CMakeLists.txt.in googletest-download/CMakeLists.txt)
+execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
+        RESULT_VARIABLE result
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/googletest-download )
+if(result)
+    message(FATAL_ERROR "CMake step for googletest failed: ${result}")
+endif()
+execute_process(COMMAND ${CMAKE_COMMAND} --build .
+        RESULT_VARIABLE result
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/googletest-download )
+if(result)
+    message(FATAL_ERROR "Build step for googletest failed: ${result}")
+endif()
+
+# Prevent overriding the parent project's compiler/linker
+# settings on Windows
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+
+# Add googletest directly to our build. This defines
+# the gtest and gtest_main targets.
+add_subdirectory(${CMAKE_BINARY_DIR}/googletest-src
+        ${CMAKE_BINARY_DIR}/googletest-build
+        EXCLUDE_FROM_ALL)
+
+# The gtest/gtest_main targets carry header search path
+# dependencies automatically when using CMake 2.8.11 or
+# later. Otherwise we have to add them here ourselves.
+if (CMAKE_VERSION VERSION_LESS 2.8.11)
+    include_directories("${gtest_SOURCE_DIR}/include")
+endif()
+
+execute_process (
+        COMMAND bash -c "if ! grep -q \"t_argv;\" ${gtest_SOURCE_DIR}/src/gtest_main.cc; then \n \
+        sed '/include \"gtest/a char \\*\\*t_argv;\n' ${gtest_SOURCE_DIR}/src/gtest_main.cc  > ${gtest_SOURCE_DIR}/src/gtest_main_temp1.cc \n \
+        sed '/\\*\\*t_argv;/a int t_argc;\n' ${gtest_SOURCE_DIR}/src/gtest_main_temp1.cc > ${gtest_SOURCE_DIR}/src/gtest_main_temp2.cc \n \
+        sed '/testing::InitGoogleTest(&argc, argv);/a t_argc = argc;\n' ${gtest_SOURCE_DIR}/src/gtest_main_temp2.cc > ${gtest_SOURCE_DIR}/src/gtest_main_temp1.cc \n \
+        sed '/t_argc = argc;/a t_argv = argv;\n' ${gtest_SOURCE_DIR}/src/gtest_main_temp1.cc > ${gtest_SOURCE_DIR}/src/gtest_main_temp2.cc \n \
+        mv ${gtest_SOURCE_DIR}/src/gtest_main_temp1.cc ${gtest_SOURCE_DIR}/src/gtest_main_temp.cc \n \
+        mv ${gtest_SOURCE_DIR}/src/gtest_main_temp2.cc ${gtest_SOURCE_DIR}/src/gtest_main_temp.cc \n \
+        mv ${gtest_SOURCE_DIR}/src/gtest_main_temp.cc ${gtest_SOURCE_DIR}/src/gtest_main.cc \n \
+        fi"
+)
+
+include_directories(${CMAKE_BINARY_DIR}/googletest-src/googlemock/include)
+include_directories(${CMAKE_BINARY_DIR}/googletest-src/googletest/include)
+
 set(BUILD_BLE OFF)
 if(${BUILD_BLE})
 # thank you: https://stackoverflow.com/questions/38515316/how-to-configure-dbus-dependencies-with-cmake
@@ -41,9 +89,7 @@ set(TEST_FILES
 
 add_executable(runAll_Tests ${TEST_FILES})
 
-include_directories(src/lib/googletest/googlemock/include)
-include_directories(src/lib/googletest/googletest/src)
-include_directories(src/lib/googletest/googletest/include)
+
 include_directories(src/lib/testclients)
 
 include_directories(src/implementation/linux-mqtt-sn-gateway/src/arduino-linux-abstraction/src)
@@ -64,7 +110,7 @@ include_directories(src/implementation/linux-mqtt-sn-gateway/src/Implementation/
 endif(${BUILD_LORA})
 
 
-add_subdirectory(src/lib/googletest)
+#add_subdirectory(src/lib/googletest)
 add_subdirectory(src/lib/testclients)
 add_subdirectory(src/implementation/${TO_TEST_IMPLEMENTATION_FOLDER})
 
