@@ -48,25 +48,9 @@ set(FAKESOCKET_SOURCE_FILES
         FakeClientSockets/FakeSerialSocket.cpp
         )
 
-if(${BUILD_BLE})
 
-set(FAKESOCKET_BLE_SOURCE_FILES
-	    FakeClientSockets/FakeBluetoothLeSocket.h
-        FakeClientSockets/FakeBluetoothLeSocket.cpp
-        )
-        
-# TODO add python dynamically instead of this hard coded include_directories
-include_directories(/usr/include/python2.7)
-
-add_library(LinuxMqttSnClientFake ${FAKECLIENT_SOURCE_FILES} ${FAKESOCKET_SOURCE_FILES} ${FAKESOCKET_BLE_SOURCE_FILES})
-target_link_libraries(LinuxMqttSnClientFake python2.7)
-
-else()
-
-# Build without BLE
 add_library(LinuxMqttSnClientFake ${FAKECLIENT_SOURCE_FILES} ${FAKESOCKET_SOURCE_FILES})
 
-endif(${BUILD_BLE})
 
 
 

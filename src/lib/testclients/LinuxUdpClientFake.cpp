@@ -2,7 +2,6 @@
 #include <thread>
 #include <FakeClientSockets/FakeUdpSocket.h>
 #include <mutex>
-//#include <FakeClientSockets/FakeBluetoothLeSocket.h>
 #include <FakeClientSockets/FakeSerialSocket.h>
 
 
@@ -292,8 +291,6 @@ void LinuxUdpClientFake::start_loop() {
     fakeSocket = new FakeUdpSocket();
 #elif (FakeClientTransmissionProtocol == FakeClientTransmissionProtocol_TCP)
 #error FakeClientTransmissionProtocol TCP not implemented yet
-#elif (FakeClientTransmissionProtocol == FakeClientTransmissionProtocol_BLE)
-    fakeSocket = new FakeBluetoothLeSocket();
 #elif (FakeClientTransmissionProtocol == FakeClientTransmissionProtocol_ZIGBEE)
 #error FakeClientTransmissionProtocol ZIGBEE not implemented yet
 #else

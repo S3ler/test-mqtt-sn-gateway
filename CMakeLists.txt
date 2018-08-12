@@ -36,6 +36,10 @@ if (CMAKE_VERSION VERSION_LESS 2.8.11)
     include_directories("${gtest_SOURCE_DIR}/include")
 endif()
 
+include_directories(${CMAKE_BINARY_DIR}/googletest-src/googlemock/include)
+include_directories(${CMAKE_BINARY_DIR}/googletest-src/googletest/include)
+
+# Add global command line argument variables t_argv and t_argv to gtest_main.cc
 execute_process (
         COMMAND bash -c "if ! grep -q \"t_argv;\" ${gtest_SOURCE_DIR}/src/gtest_main.cc; then \n \
         sed '/include \"gtest/a char \\*\\*t_argv;\n' ${gtest_SOURCE_DIR}/src/gtest_main.cc  > ${gtest_SOURCE_DIR}/src/gtest_main_temp1.cc \n \
@@ -47,21 +51,6 @@ execute_process (
         mv ${gtest_SOURCE_DIR}/src/gtest_main_temp.cc ${gtest_SOURCE_DIR}/src/gtest_main.cc \n \
         fi"
 )
-
-include_directories(${CMAKE_BINARY_DIR}/googletest-src/googlemock/include)
-include_directories(${CMAKE_BINARY_DIR}/googletest-src/googletest/include)
-
-set(BUILD_BLE OFF)
-if(${BUILD_BLE})
-# thank you: https://stackoverflow.com/questions/38515316/how-to-configure-dbus-dependencies-with-cmake
-set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
-find_package(DBus REQUIRED)
-include_directories(${DBUS_INCLUDE_DIRS})
-
-pkg_search_module(GLIB REQUIRED glib-2.0)
-include_directories(${GLIB_INCLUDE_DIRS})
-endif(${BUILD_BLE})
-
 
 set(BUILD_RPI OFF)
 if(${BUILD_RPI})
@@ -110,16 +99,8 @@ include_directories(src/implementation/linux-mqtt-sn-gateway/src/Implementation/
 endif(${BUILD_LORA})
 
 
-#add_subdirectory(src/lib/googletest)
 add_subdirectory(src/lib/testclients)
 add_subdirectory(src/implementation/${TO_TEST_IMPLEMENTATION_FOLDER})
-
-if(${BUILD_BLE})
-find_package(PkgConfig REQUIRED)
-pkg_search_module(GLIB REQUIRED glib-2.0)
-include_directories(${GLIB_INCLUDE_DIRS})
-include_directories(src/implementation/${TO_TEST_IMPLEMENTATION_FOLDER}/src/Implementation/Ble/SimpleBluetoothLowEnergySocket/libBLE/)
-endif(${BUILD_BLE})
 
 if(${BUILD_RPI})
 target_link_libraries(runAll_Tests lib-rh-nrf24-socket bcm2835)
