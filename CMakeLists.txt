@@ -21,23 +21,22 @@ if(${BUILD_RPI})
 add_definitions(-DRH_PLATFORM=RH_PLATFORM_RASPI)
 endif(${BUILD_RPI})
 
-set(BUILD_LORA ON)
+set(BUILD_LORA OFF)
 if(${BUILD_LORA})
 add_definitions(-DRH_PLATFORM=RH_PLATFORM_RPI)
 endif(${BUILD_LORA})
 
 set(TO_TEST_IMPLEMENTATION_FOLDER linux-mqtt-sn-gateway)
 
-add_definitions(-DGATEWAY_TRANSMISSION_PROTOCOL_RASPBERRY_RH_RF95)
-#add_definitions(-DGATEWAY_TRANSMISSION_PROTOCOL_UDP)
-add_definitions(-DFakeClientTransmissionProtocol=FakeClientTransmissionProtocol_SERIAL)
-#add_definitions(-DFakeClientTransmissionProtocol=FakeClientTransmissionProtocol_UDP)
+#add_definitions(-DGATEWAY_TRANSMISSION_PROTOCOL_RASPBERRY_RH_RF95)
+add_definitions(-DGATEWAY_TRANSMISSION_PROTOCOL_UDP)
+#add_definitions(-DFakeClientTransmissionProtocol=FakeClientTransmissionProtocol_SERIAL)
+add_definitions(-DFakeClientTransmissionProtocol=FakeClientTransmissionProtocol_UDP)
 
 set(TEST_FILES
-
         src/google_test_main_arguments.h
-
-	src/integration/General_Check.cpp
+        src/compliance/LinuxUdpGateway_Connect_Test.cpp
+        #src/integration/General_Check.cpp
 )
 
 add_executable(runAll_Tests ${TEST_FILES})
