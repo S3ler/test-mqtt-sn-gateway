@@ -6,7 +6,7 @@ You need to have [docker](https://www.docker.com/) installed. During the tests w
 
 Clone the repository, initialize CMAKE with the Transmission Protocol (e.g. UDP), make rnAll_Test, run runAll_Test
 
-    git clone --recursive-submodule https://github.com/S3ler/test-mqtt-sn-gateway.git
+    git clone --recursive https://github.com/S3ler/test-mqtt-sn-gateway.git
     cmake -G"Unix Makefiles" -DCMAKE_BUILD_TYPE=Debug -DTRANSMISSION_PROTOCOL=UDP
     make runAll_Tests
     ./runAll_Tests
